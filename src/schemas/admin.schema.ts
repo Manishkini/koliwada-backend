@@ -18,10 +18,8 @@ export class Admin {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Role' })
     role: Role;
 
-    @Prop({
-        type: Number
-    })
-    mobileNumber: number;
+    @Prop({ type: String })
+    mobileNumber: string;
 
     @Prop({ type: String })
     email: string;
