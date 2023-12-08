@@ -1,15 +1,17 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Admin } from 'src/schemas/admin.schema';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('admin/signup')
+  create(@Body() createAdminDto: CreateAdminDto): Promise<Admin> {
+    return this.authService.createAdmin(createAdminDto);
   }
 
   @Get()

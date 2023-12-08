@@ -15,8 +15,9 @@ export class PermissionService {
     return permission;
   }
 
-  findAll() {
-    return `This action returns all permission`;
+  async findAll(): Promise<Permission[]> {
+    const permissions = await this.permissionModal.find({});
+    return permissions;
   }
 
   findOne(id: number) {

@@ -19,9 +19,7 @@ export class Admin {
     role: Role;
 
     @Prop({
-        type: Number,
-        min: 10,
-        max: 10,
+        type: Number
     })
     mobileNumber: number;
 
@@ -41,4 +39,4 @@ export class Admin {
     active: boolean;
 }
 
-export const AdminSchema = SchemaFactory.createForClass(Admin);
+export const AdminSchema = SchemaFactory.createForClass(Admin); 

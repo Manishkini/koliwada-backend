@@ -14,7 +14,7 @@ export class PermissionController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Permission[]> {
     return this.permissionService.findAll();
   }
 
