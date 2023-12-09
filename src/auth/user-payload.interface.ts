@@ -1,6 +1,6 @@
 import { Role } from "src/schemas/role.schema"
 
-export interface AdminPayload {
+export interface UserPayload {
     firstName: string,
     middleName: string,
     lastName: string,

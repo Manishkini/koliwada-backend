@@ -6,6 +6,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { Admin } from 'src/schemas/admin.schema';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetAdmin } from './get-admin.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -23,12 +24,12 @@ export class AuthController {
 
   @Get('test')
   @UseGuards(AuthGuard('admin'))
-  test(@Req() req) {
-    console.log(req)
+  test(@GetAdmin() req) {
+    // console.log(req)
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<Admin[]> {
     return this.authService.findAll();
   }
 

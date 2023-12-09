@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CatsModule } from './cats/cats.module';
 import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
+import { StateModule } from './state/state.module';
+import { TehsilModule } from './tehsil/tehsil.module';
+import { VillageModule } from './village/village.module';
+import { DistrictModule } from './district/district.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -17,10 +20,13 @@ import { AuthModule } from './auth/auth.module';
       }),
       inject: [ConfigService],
     }),
-    CatsModule,
     PermissionModule,
     RoleModule,
-    AuthModule
+    AuthModule,
+    StateModule,
+    TehsilModule,
+    VillageModule,
+    DistrictModule
   ],
 })
 export class AppModule { }

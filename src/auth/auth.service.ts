@@ -63,8 +63,8 @@ export class AuthService {
     return 'This action adds a new auth';
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async findAll(): Promise<Admin[]> {
+    return await this.adminModal.find({});
   }
 
   findOne(id: number) {
