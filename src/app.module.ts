@@ -5,7 +5,6 @@ import { CatsModule } from './cats/cats.module';
 import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
-console.log("process.env.STAGE", process.env)
 @Module({
   imports: [
     ConfigModule.forRoot({

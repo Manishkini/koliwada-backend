@@ -3,9 +3,10 @@ import { PermissionService } from './permission.service';
 import { PermissionController } from './permission.controller';
 import { Permission, PermissionSchema } from 'src/schemas/permission.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Permission.name, schema: PermissionSchema }])],
+  imports: [MongooseModule.forFeature([{ name: Permission.name, schema: PermissionSchema }]), AuthModule],
   controllers: [PermissionController],
   providers: [PermissionService],
 })
