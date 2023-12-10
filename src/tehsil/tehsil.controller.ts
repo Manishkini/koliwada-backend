@@ -3,16 +3,16 @@ import { TehsilService } from './tehsil.service';
 import { CreateTehsilDto } from './dto/create-tehsil.dto';
 import { UpdateTehsilDto } from './dto/update-tehsil.dto';
 import { Tehsil } from 'src/schemas/tehsil.schema';
-import { GetAdmin } from 'src/auth/get-admin.decorator';
+import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('tehsil')
-@UseGuards(AuthGuard('admin'))
 export class TehsilController {
   constructor(private readonly tehsilService: TehsilService) { }
 
   @Post()
+  @UseGuards(AuthGuard('admin'))
   create(
     @Body() createTehsilDto: CreateTehsilDto,
     @GetAdmin() admin: AdminDocument
@@ -21,6 +21,7 @@ export class TehsilController {
   }
 
   @Get()
+  @UseGuards(AuthGuard(['admin', 'user']))
   findAll() {
     return this.tehsilService.findAll();
   }

@@ -3,11 +3,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
-import { AuthModule } from './auth/auth.module';
 import { StateModule } from './state/state.module';
 import { TehsilModule } from './tehsil/tehsil.module';
 import { VillageModule } from './village/village.module';
 import { DistrictModule } from './district/district.module';
+import { AdminModule } from './admin/admin.module';
+import { UserModule } from './user/user.module';
+import { RouterModule } from '@nestjs/core';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,13 +22,29 @@ import { DistrictModule } from './district/district.module';
       }),
       inject: [ConfigService],
     }),
+    RouterModule.register([
+      {
+        path: 'auth',
+        children: [
+          {
+            path: 'admin',
+            module: AdminModule
+          },
+          {
+            path: 'user',
+            module: UserModule
+          }
+        ]
+      }
+    ]),
     PermissionModule,
     RoleModule,
-    AuthModule,
     StateModule,
     TehsilModule,
     VillageModule,
-    DistrictModule
+    DistrictModule,
+    AdminModule,
+    UserModule
   ],
 })
 export class AppModule { }

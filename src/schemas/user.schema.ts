@@ -1,40 +1,77 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Village } from './village.schema';
+import { Admin } from './admin.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User {
-    @Prop({ type: String })
-    firstName: string;
+    @Prop({ type: String, required: true })
+    firstName: string
+
+    @Prop({ type: String, required: true })
+    middleName: string
+
+    @Prop({ type: String, required: true })
+    lastName: string
+
+    @Prop({ type: String, required: true })
+    mobileNumber: string;
+
+    @Prop({ type: String, required: true })
+    email: string
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Village' })
+    village: Village
 
     @Prop({ type: String })
-    middleName: string;
+    profilePic: string
 
     @Prop({ type: String })
-    lastName: string;
+    highestQualification: string
 
-    @Prop({
-        type: Number,
-        min: 10,
-        max: 10,
-    })
-    mobileNumber: number;
+    @Prop({ type: Number })
+    birthDay: number
+
+    @Prop({ type: Number })
+    birthMonth: number
+
+    @Prop({ type: Number })
+    birthYear: number
 
     @Prop({ type: String })
-    email: string;
+    panCard: string
 
     @Prop({ type: String })
-    password: string;
+    aadharCard: string
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    createdBy: User;
+    @Prop({ type: Boolean, default: false })
+    isMobileNumberVerified: boolean
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    updatedBy: User;
+    @Prop({ type: Boolean, default: false })
+    isEmailVerified: boolean
 
-    @Prop({ type: Boolean })
-    active: boolean;
+    @Prop({ type: Boolean, default: false })
+    isVillageVerified: boolean
+
+    @Prop({ type: Boolean, default: false })
+    isProfilePicVerified: boolean
+
+    @Prop({ type: Boolean, default: false })
+    isPanCardVerified: boolean
+
+    @Prop({ type: Boolean, default: false })
+    isAadharCardVerified: boolean
+
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
+    verifiedBy: Admin
+
+    @Prop({ type: String, required: true })
+    password: string
+
+    @Prop({ type: Boolean, default: true })
+    active: boolean
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

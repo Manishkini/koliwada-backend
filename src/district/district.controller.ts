@@ -3,16 +3,16 @@ import { DistrictService } from './district.service';
 import { CreateDistrictDto } from './dto/create-district.dto';
 import { UpdateDistrictDto } from './dto/update-district.dto';
 import { District } from 'src/schemas/district.schema';
-import { GetAdmin } from 'src/auth/get-admin.decorator';
+import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('district')
-@UseGuards(AuthGuard('admin'))
 export class DistrictController {
   constructor(private readonly districtService: DistrictService) { }
 
   @Post()
+  @UseGuards(AuthGuard('admin'))
   create(
     @Body() createDistrictDto: CreateDistrictDto,
     @GetAdmin() admin: AdminDocument
@@ -21,6 +21,7 @@ export class DistrictController {
   }
 
   @Get()
+  @UseGuards(AuthGuard(['admin', 'user']))
   findAll() {
     return this.districtService.findAll();
   }

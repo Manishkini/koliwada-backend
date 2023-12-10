@@ -5,14 +5,14 @@ import { UpdateStateDto } from './dto/update-state.dto';
 import { State } from 'src/schemas/state.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminDocument } from 'src/schemas/admin.schema';
-import { GetAdmin } from 'src/auth/get-admin.decorator';
+import { GetAdmin } from 'src/admin/get-admin.decorator';
 
 @Controller('state')
-@UseGuards(AuthGuard('admin'))
 export class StateController {
   constructor(private readonly stateService: StateService) { }
 
   @Post()
+  @UseGuards(AuthGuard('admin'))
   create(
     @Body() createStateDto: CreateStateDto,
     @GetAdmin() admin: AdminDocument
@@ -21,6 +21,7 @@ export class StateController {
   }
 
   @Get()
+  @UseGuards(AuthGuard(['admin', 'user']))
   findAll() {
     return this.stateService.findAll();
   }

@@ -2,16 +2,17 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { VillageService } from './village.service';
 import { CreateVillageDto } from './dto/create-village.dto';
 import { UpdateVillageDto } from './dto/update-village.dto';
-import { GetAdmin } from 'src/auth/get-admin.decorator';
+import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
+import { Village } from 'src/schemas/village.schema';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('village')
-@UseGuards(AuthGuard('admin'))
 export class VillageController {
   constructor(private readonly villageService: VillageService) { }
 
   @Post()
+  @UseGuards(AuthGuard('admin'))
   create(
     @Body() createVillageDto: CreateVillageDto,
     @GetAdmin() admin: AdminDocument
@@ -20,7 +21,8 @@ export class VillageController {
   }
 
   @Get()
-  findAll() {
+  @UseGuards(AuthGuard(['admin', 'user']))
+  findAll(): Promise<Village[]> {
     return this.villageService.findAll();
   }
 

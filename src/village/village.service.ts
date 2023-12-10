@@ -19,8 +19,8 @@ export class VillageService {
     return village;
   }
 
-  findAll() {
-    return `This action returns all village`;
+  async findAll(): Promise<Village[]> {
+    return await this.villageModel.find({});
   }
 
   findOne(id: number) {

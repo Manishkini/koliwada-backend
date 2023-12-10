@@ -1,4 +1,4 @@
-import { IsAlpha, IsEmail, IsMongoId, IsNotEmpty, IsPhoneNumber, IsString, Matches, MaxLength, MinLength } from "class-validator"
+import { IsAlpha, IsBoolean, IsEmail, IsMongoId, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, Matches, MaxLength, MinLength } from "class-validator"
 
 export class CreateAdminDto {
     @IsNotEmpty()
@@ -34,4 +34,8 @@ export class CreateAdminDto {
     @MaxLength(32)
     @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, { message: 'Password is too weak' })
     password: string
+
+    @IsOptional()
+    @IsBoolean()
+    active: boolean
 }

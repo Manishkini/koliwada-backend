@@ -3,10 +3,10 @@ import { TehsilService } from './tehsil.service';
 import { TehsilController } from './tehsil.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Tehsil, TehsilSchema } from 'src/schemas/tehsil.schema';
-import { AuthModule } from 'src/auth/auth.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Tehsil.name, schema: TehsilSchema }]), AuthModule],
+  imports: [MongooseModule.forFeature([{ name: Tehsil.name, schema: TehsilSchema }]), AdminModule],
   controllers: [TehsilController],
   providers: [TehsilService],
 })

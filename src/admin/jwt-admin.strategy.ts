@@ -14,17 +14,17 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
         private configService: ConfigService
     ) {
         super({
-            secretOrKey: configService.get('JWT_SECRET'),
+            secretOrKey: configService.get('JWT_SECRET_ADMIN'),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
         })
     }
 
     async validate(payload: AdminPayload): Promise<Admin> {
-        const { mobileNumber } = payload
-        const admin: Admin = await this.adminModal.findOne({ mobileNumber }).select('-password');
+        const { id } = payload
+        const admin: Admin = await this.adminModal.findById(id).select('-password');
 
         if (!admin) {
-            throw new UnauthorizedException("Admin Not Found")
+            throw new UnauthorizedException()
         }
 
         return admin;

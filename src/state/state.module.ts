@@ -3,10 +3,10 @@ import { StateService } from './state.service';
 import { StateController } from './state.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { State, StateSchema } from 'src/schemas/state.schema';
-import { AuthModule } from 'src/auth/auth.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: State.name, schema: StateSchema }]), AuthModule],
+  imports: [MongooseModule.forFeature([{ name: State.name, schema: StateSchema }]), AdminModule],
   controllers: [StateController],
   providers: [StateService],
 })

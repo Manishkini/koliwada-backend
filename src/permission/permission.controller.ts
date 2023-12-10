@@ -3,8 +3,10 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from 'src/schemas/permission.schema';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('permission')
+@UseGuards(AuthGuard('admin'))
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) { }
 
