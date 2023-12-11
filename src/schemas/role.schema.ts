@@ -8,6 +8,9 @@ export class Role {
     @Prop()
     name: string;
 
+    @Prop()
+    slug: string;
+
     @Prop({
         type: [String]
     })

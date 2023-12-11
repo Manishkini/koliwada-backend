@@ -6,13 +6,17 @@ import { District } from 'src/schemas/district.schema';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/role/roles.decorator';
+import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
+import { RolesGuard } from 'src/role/roles.guard';
 
 @Controller('district')
+@Roles(SUPER_ADMIN)
 export class DistrictController {
   constructor(private readonly districtService: DistrictService) { }
 
   @Post()
-  @UseGuards(AuthGuard('admin'))
+  @UseGuards(AuthGuard('admin'), RolesGuard)
   create(
     @Body() createDistrictDto: CreateDistrictDto,
     @GetAdmin() admin: AdminDocument
@@ -21,22 +25,27 @@ export class DistrictController {
   }
 
   @Get()
-  @UseGuards(AuthGuard(['admin', 'user']))
+  @Roles(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
   findAll() {
     return this.districtService.findAll();
   }
 
   @Get(':id')
+  @Roles(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
   findOne(@Param('id') id: string) {
     return this.districtService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('admin'), RolesGuard)
   update(@Param('id') id: string, @Body() updateDistrictDto: UpdateDistrictDto) {
     return this.districtService.update(+id, updateDistrictDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('admin'), RolesGuard)
   remove(@Param('id') id: string) {
     return this.districtService.remove(+id);
   }

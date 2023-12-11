@@ -4,9 +4,13 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from 'src/schemas/role.schema';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
+import { SUPER_ADMIN, CHAIRMAN } from './roles-list.enum';
 
 @Controller('role')
-@UseGuards(AuthGuard('admin'))
+@Roles(SUPER_ADMIN)
+@UseGuards(AuthGuard('admin'), RolesGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) { }
 
@@ -16,22 +20,26 @@ export class RoleController {
   }
 
   @Get()
+  @Roles(CHAIRMAN)
+  @UseGuards(RolesGuard)
   findAll(): Promise<Role[]> {
     return this.roleService.findAll();
   }
 
   @Get(':id')
+  @Roles(CHAIRMAN)
+  @UseGuards(RolesGuard)
   findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+    return this.roleService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+    return this.roleService.update(id, updateRoleDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.roleService.remove(+id);
+    return this.roleService.remove(id);
   }
 }

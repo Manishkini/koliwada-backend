@@ -21,6 +21,10 @@ export class CreateAdminDto {
     role: string
 
     @IsNotEmpty()
+    @IsMongoId()
+    village: string
+
+    @IsNotEmpty()
     @IsPhoneNumber()
     mobileNumber: string
 

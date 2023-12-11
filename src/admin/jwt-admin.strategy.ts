@@ -3,9 +3,10 @@ import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { PassportStrategy } from "@nestjs/passport";
 import { Model } from "mongoose";
-import { Admin } from "src/schemas/admin.schema";
+import { Admin, AdminDocument } from "src/schemas/admin.schema";
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { AdminPayload } from "./admin-payload.interface";
+import { AdminEntity } from "./entity/admin.entity";
 
 @Injectable()
 export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
@@ -19,14 +20,17 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
         })
     }
 
-    async validate(payload: AdminPayload): Promise<Admin> {
-        const { id } = payload
-        const admin: Admin = await this.adminModal.findById(id).select('-password');
+    async validate(payload: AdminPayload): Promise<AdminPayload> {
+        const { mobileNumber } = payload
+        const admin: AdminEntity = await this.adminModal.findOne({ mobileNumber }).populate(['role', 'village']);
 
         if (!admin) {
             throw new UnauthorizedException()
         }
+        payload.id = admin.id;
+        payload.roleID = admin.role.id;
+        payload.villageID = admin.village.id;
 
-        return admin;
+        return payload;
     }
 }

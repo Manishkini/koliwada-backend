@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
 import { AdminPayload } from './admin-payload.interface';
+import { Roles } from 'src/role/roles.decorator';
 
 @Injectable()
 export class AdminService {
@@ -29,21 +30,22 @@ export class AdminService {
     const { mobileNumber, password } = signInAdminDto
     const admin = await this.adminModal.findOne({
       mobileNumber
-    }).populate('role');
+    }).populate(['role', 'village']);
 
     if (admin) {
       const isPasswordMatched = await bcrypt.compare(password, admin.password)
       if (isPasswordMatched) {
         const payload: AdminPayload = {
-          id: admin.id,
           firstName: admin.firstName,
           middleName: admin.middleName,
           lastName: admin.lastName,
           mobileNumber: admin.mobileNumber,
           email: admin.email,
-          role: admin.role.name,
+          role: admin.role.slug,
+          village: admin.village.name,
           permissions: admin.role.permissions,
         }
+
         const accessToken = this.jwtService.sign(payload)
 
         return { accessToken }
