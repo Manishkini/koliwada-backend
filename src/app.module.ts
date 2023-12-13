@@ -10,6 +10,7 @@ import { DistrictModule } from './district/district.module';
 import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
 import { RouterModule } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +38,10 @@ import { RouterModule } from '@nestjs/core';
         ]
       }
     ]),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 60 * 60 * 1000
+    }),
     PermissionModule,
     RoleModule,
     StateModule,

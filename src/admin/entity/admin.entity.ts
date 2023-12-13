@@ -5,14 +5,26 @@ export class AdminEntity {
     firstName: string;
     middleName: string;
     lastName: string;
-    role: {
+    state: {
         id: mongoose.Schema.Types.ObjectId;
         name: string;
-        slug: string;
+    }
+    district: {
+        id: mongoose.Schema.Types.ObjectId;
+        name: string;
+    }
+    tehsil: {
+        id: mongoose.Schema.Types.ObjectId;
+        name: string;
     }
     village: {
         id: mongoose.Schema.Types.ObjectId;
         name: string;
+    }
+    role: {
+        id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        slug: string;
     }
     mobileNumber: string;
     email: string;
