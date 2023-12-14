@@ -11,6 +11,8 @@ import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
 import { RouterModule } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
+import { SeedModule } from './seed/seed.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -49,7 +51,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     VillageModule,
     DistrictModule,
     AdminModule,
-    UserModule
+    UserModule,
+    SeedModule,
   ],
 })
 export class AppModule { }

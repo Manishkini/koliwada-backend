@@ -26,7 +26,7 @@ import { JwtAdminStrategy } from './jwt-admin.strategy';
     }),
     MongooseModule.forFeature([{ name: Admin.name, schema: AdminSchema }]),
   ],
-  controllers: [AdminController,],
+  controllers: [AdminController],
   providers: [JwtAdminStrategy, AdminService],
   exports: [JwtAdminStrategy, PassportModule]
 })

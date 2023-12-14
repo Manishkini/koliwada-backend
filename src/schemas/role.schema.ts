@@ -5,15 +5,16 @@ export type RoleDocument = HydratedDocument<Role>;
 
 @Schema({ timestamps: true })
 export class Role {
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
-    @Prop()
+    @Prop({ required: true })
+    nameNative: string;
+
+    @Prop({ required: true })
     slug: string;
 
-    @Prop({
-        type: [String]
-    })
+    @Prop({ type: [String] })
     permissions: string[];
 }
 

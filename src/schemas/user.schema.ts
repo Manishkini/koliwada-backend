@@ -17,6 +17,15 @@ export class User {
     lastName: string
 
     @Prop({ type: String, required: true })
+    firstNameNative: string
+
+    @Prop({ type: String, required: true })
+    middleNameNative: string
+
+    @Prop({ type: String, required: true })
+    lastNameNative: string
+
+    @Prop({ type: String, required: true })
     mobileNumber: string;
 
     @Prop({ type: String, required: true })

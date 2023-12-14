@@ -5,12 +5,10 @@ export type PermissionDocument = HydratedDocument<Permission>;
 
 @Schema({ timestamps: true })
 export class Permission {
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
-    @Prop({
-        type: [String]
-    })
+    @Prop({ type: [String] })
     permissions: string[];
 }
 

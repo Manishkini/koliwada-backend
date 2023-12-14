@@ -6,10 +6,11 @@ export type StateDocument = HydratedDocument<State>;
 
 @Schema({ timestamps: true })
 export class State {
-    @Prop({
-        required: true
-    })
+    @Prop({ required: true })
     name: string;
+
+    @Prop({ required: true })
+    nameNative: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
     createdBy: Admin;

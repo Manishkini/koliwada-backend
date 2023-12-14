@@ -20,6 +20,15 @@ export class Admin {
     @Prop({ type: String })
     lastName: string;
 
+    @Prop({ type: String })
+    firstNameNative: string;
+
+    @Prop({ type: String })
+    middleNameNative: string;
+
+    @Prop({ type: String })
+    lastNameNative: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State', required: true })
     state: State;
 

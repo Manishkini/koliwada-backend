@@ -7,10 +7,11 @@ export type TehsilDocument = HydratedDocument<Tehsil>;
 
 @Schema({ timestamps: true })
 export class Tehsil {
-    @Prop({
-        required: true
-    })
+    @Prop({ required: true })
     name: string;
+
+    @Prop({ required: true })
+    nameNative: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'District', required: true })
     district: District;
