@@ -5,7 +5,16 @@ import { Tehsil } from './tehsil.schema';
 
 export type VillageDocument = HydratedDocument<Village>;
 
-@Schema({ timestamps: true })
+@Schema({
+    timestamps: true,
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.__v;
+            ret.id = ret._id;
+            delete ret._id;
+        }
+    }
+})
 export class Village {
     @Prop({ required: true })
     name: string;

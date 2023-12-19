@@ -5,7 +5,16 @@ import { District } from './district.schema';
 
 export type TehsilDocument = HydratedDocument<Tehsil>;
 
-@Schema({ timestamps: true })
+@Schema({
+    timestamps: true,
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.__v;
+            ret.id = ret._id;
+            delete ret._id;
+        }
+    }
+})
 export class Tehsil {
     @Prop({ required: true })
     name: string;

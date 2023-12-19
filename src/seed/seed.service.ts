@@ -8,7 +8,7 @@ import { Role } from 'src/schemas/role.schema';
 import { State } from 'src/schemas/state.schema';
 import { Tehsil } from 'src/schemas/tehsil.schema';
 import { Village } from 'src/schemas/village.schema';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -22,36 +22,51 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectModel(Permission.name) private permissionModel: Model<Permission>,
   ) { }
   async initialSeed() {
-    const adminModel = await this.adminModel.find({})
+    const adminModel = await this.adminModel.find({});
     if (!adminModel.length) {
-      const state = new this.stateModel({ name: "Maharashtra", nameNative: "महाराष्ट्र" })
-      const district = new this.districtModel({ name: "Thane", nameNative: "ठाणे", state: state.id })
-      const tehsil = new this.tehsilModel({ name: "Borivali", nameNative: "बोरिवली", district: district.id })
-      const village = new this.villageModel({ name: "Charkop", nameNative: "चारकोप", tehsil: tehsil.id })
-      const permissionPermission = new this.permissionModel({
-        name: "permissionManagement",
-        permissions: ["createPermissionManagement", "readPermissionManagement", "updatePermissionManagement", "deletePermissionManagement"]
-      })
-      const permissionRole = new this.permissionModel({
-        name: "roleManagement",
-        permissions: ["createRoleManagement", "readRoleManagement", "updateRoleManagement", "deleteRoleManagement"]
-      })
-      const permissionAdmin = new this.permissionModel({
-        name: "adminManagement",
-        permissions: ["createAdminManagement", "readAdminManagement", "updateAdminManagement", "deleteAdminManagement"]
-      })
+      const state = new this.stateModel({
+        name: 'Maharashtra',
+        nameNative: 'महाराष्ट्र',
+      });
+      const district = new this.districtModel({
+        name: 'Thane',
+        nameNative: 'ठाणे',
+        state: state.id,
+      });
+      const tehsil = new this.tehsilModel({
+        name: 'Borivali',
+        nameNative: 'बोरिवली',
+        district: district.id,
+      });
+      const village = new this.villageModel({
+        name: 'Charkop',
+        nameNative: 'चारकोप',
+        tehsil: tehsil.id,
+      });
+      const permissionPermission = new this.permissionModel({ name: 'Permission' });
+      const permissionRole = new this.permissionModel({ name: 'Role' });
+      const permissionAdmin = new this.permissionModel({ name: 'Invitation' });
       const role = new this.roleModel({
-        name: "Super Admin",
-        nameNative: "प्रशासक",
-        slug: "super_admin",
+        name: 'Super Admin',
+        nameNative: 'प्रशासक',
+        slug: 'super_admin',
         permissions: [
-          "createPermissionManagement", "readPermissionManagement", "updatePermissionManagement", "deletePermissionManagement",
-          "createRoleManagement", "readRoleManagement", "updateRoleManagement", "deleteRoleManagement",
-          "createAdminManagement", "readAdminManagement", "updateAdminManagement", "deleteAdminManagement"
-        ]
-      })
+          {
+            subject: 'Permission',
+            actions: ['read', 'create', 'update', 'delete']
+          },
+          {
+            subject: 'Role',
+            actions: ['read', 'create', 'update', 'delete']
+          },
+          {
+            subject: 'Invitation',
+            actions: ['read', 'create', 'update', 'delete']
+          }
+        ],
+      });
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash("Test@123", salt);
+      const hashedPassword = await bcrypt.hash('Test@123', salt);
       const admin = new this.adminModel({
         state: state.id,
         district: district.id,
@@ -60,8 +75,8 @@ export class SeedService implements OnApplicationBootstrap {
         role: role.id,
         email: 'test@koliwada.com',
         mobileNumber: '+917894561230',
-        password: hashedPassword
-      })
+        password: hashedPassword,
+      });
       await state.save();
       await district.save();
       await tehsil.save();
@@ -74,6 +89,6 @@ export class SeedService implements OnApplicationBootstrap {
     }
   }
   onApplicationBootstrap() {
-    this.initialSeed()
+    this.initialSeed();
   }
 }

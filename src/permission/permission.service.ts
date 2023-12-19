@@ -28,7 +28,7 @@ export class PermissionService {
     return `This action updates a #${id} permission`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} permission`;
+  async remove(id: string): Promise<void> {
+    await this.permissionModal.findByIdAndDelete(id);
   }
 }

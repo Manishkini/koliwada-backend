@@ -5,9 +5,12 @@ export class CreateRoleDto {
     name: string
 
     @IsNotEmpty()
+    nameNative: string
+
+    @IsNotEmpty()
     slug: string
 
     @IsArray()
     @ArrayNotEmpty()
-    permissions: string[]
+    permissions: object[]
 }

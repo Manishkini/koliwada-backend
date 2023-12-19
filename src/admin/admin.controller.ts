@@ -10,6 +10,7 @@ import { Roles } from 'src/role/roles.decorator';
 import { RolesGuard } from 'src/role/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
+import { GetAdmin } from './get-admin.decorator';
 
 @Controller()
 export class AdminController {
@@ -29,9 +30,15 @@ export class AdminController {
   //   return this.adminService.personalDetails(createAdminPersonalDto);
   // }
 
-  @Post('singin')
+  @Post('signin')
   signInAdmin(@Body() signInAdminDto: SignInAdminDto): Promise<{ accessToken: string }> {
     return this.adminService.signInAdmin(signInAdminDto);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('admin'))
+  verifyAdminByToken(@GetAdmin('') admin) {
+    return this.adminService.verifyAdminByToken(admin.email);
   }
 
   @Post('invitation')

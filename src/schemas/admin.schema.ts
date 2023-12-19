@@ -9,7 +9,16 @@ import { Tehsil } from './tehsil.schema';
 
 export type AdminDocument = HydratedDocument<Admin>;
 
-@Schema({ timestamps: true })
+@Schema({
+    timestamps: true,
+    toObject: {
+        transform: (doc, ret) => {
+            delete ret.__v;
+            ret.id = ret._id;
+            delete ret._id;
+        }
+    }
+})
 export class Admin {
     @Prop({ type: String })
     firstName: string;
@@ -44,10 +53,10 @@ export class Admin {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true })
     role: Role;
 
-    @Prop({ type: String })
+    @Prop({ type: String, unique: true })
     mobileNumber: string;
 
-    @Prop({ type: String })
+    @Prop({ type: String, unique: true })
     email: string;
 
     @Prop({ type: String })

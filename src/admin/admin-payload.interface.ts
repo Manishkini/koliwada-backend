@@ -11,5 +11,5 @@ export interface AdminPayload {
     villageID?: mongoose.Schema.Types.ObjectId
     mobileNumber: string
     email: string
-    permissions: string[]
+    permissions: object[]
 }

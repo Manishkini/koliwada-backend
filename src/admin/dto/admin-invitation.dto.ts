@@ -1,4 +1,4 @@
-import { IsEmail, IsMongoId, IsNotEmpty, IsPhoneNumber, IsString } from "class-validator"
+import { IsEmail, IsMongoId, IsNotEmpty, IsPhoneNumber } from "class-validator"
 import mongoose from "mongoose"
 
 export class AdminInvitationDto {

@@ -4,7 +4,16 @@ import { Admin } from './admin.schema';
 
 export type StateDocument = HydratedDocument<State>;
 
-@Schema({ timestamps: true })
+@Schema({
+    timestamps: true,
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.__v;
+            ret.id = ret._id;
+            delete ret._id;
+        }
+    }
+})
 export class State {
     @Prop({ required: true })
     name: string;
