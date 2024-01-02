@@ -30,4 +30,4 @@ jobs:
           touch .env
           echo "${{ secrets.KOLIWADA }}" > .env
       - run: npm run build
-      - run: pm2 restart backend
+      - run: pm2 restart Backend
