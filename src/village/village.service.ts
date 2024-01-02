@@ -23,6 +23,10 @@ export class VillageService {
     return await this.villageModel.find({});
   }
 
+  async findByTehsilID(tehsilID: string): Promise<Village[]> {
+    return await this.villageModel.find({ tehsil: tehsilID });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} village`;
   }

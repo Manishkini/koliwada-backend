@@ -6,39 +6,40 @@ import { Role } from 'src/schemas/role.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
-import { SUPER_ADMIN, CHAIRMAN } from './roles-list.enum';
+import { SUPER_ADMIN } from './roles-list.enum';
 
 @Controller('role')
-@Roles(SUPER_ADMIN)
-@UseGuards(AuthGuard('admin'), RolesGuard)
+@UseGuards(AuthGuard('admin'))
 export class RoleController {
   constructor(private readonly roleService: RoleService) { }
 
   @Post()
+  @Roles(SUPER_ADMIN)
+  @UseGuards(RolesGuard)
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.roleService.create(createRoleDto);
   }
 
   @Get()
-  @Roles(CHAIRMAN)
-  @UseGuards(RolesGuard)
   findAll(): Promise<Role[]> {
     return this.roleService.findAll();
   }
 
   @Get(':id')
-  @Roles(CHAIRMAN)
-  @UseGuards(RolesGuard)
   findOne(@Param('id') id: string) {
     return this.roleService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles(SUPER_ADMIN)
+  @UseGuards(AuthGuard('admin'), RolesGuard)
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.roleService.update(id, updateRoleDto);
   }
 
   @Delete(':id')
+  @Roles(SUPER_ADMIN)
+  @UseGuards(AuthGuard('admin'), RolesGuard)
   remove(@Param('id') id: string) {
     return this.roleService.remove(id);
   }

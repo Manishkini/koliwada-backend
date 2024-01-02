@@ -31,6 +31,13 @@ export class DistrictController {
     return this.districtService.findAll();
   }
 
+  @Get('state/:stateID')
+  @Roles(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  findByStateID(@Param('stateID') stateID: string) {
+    return this.districtService.findByStateID(stateID);
+  }
+
   @Get(':id')
   @Roles(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)

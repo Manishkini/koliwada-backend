@@ -31,6 +31,13 @@ export class TehsilController {
     return this.tehsilService.findAll();
   }
 
+  @Get('district/:districtID')
+  @Roles(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  findByDistrictID(@Param('districtID') districtID: string) {
+    return this.tehsilService.findByDistrictID(districtID);
+  }
+
   @Get(':id')
   @Roles(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)

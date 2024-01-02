@@ -5,12 +5,13 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin, AdminDocument } from 'src/schemas/admin.schema';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
 import { AdminInvitationDto } from './dto/admin-invitation.dto';
-import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
+import { CHAIRMAN, SUPER_ADMIN, VICE_PRESIDENT } from 'src/role/roles-list.enum';
 import { Roles } from 'src/role/roles.decorator';
 import { RolesGuard } from 'src/role/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
 import { GetAdmin } from './get-admin.decorator';
+import { AdminPayload } from './admin-payload.interface';
 
 @Controller()
 export class AdminController {
@@ -37,15 +38,29 @@ export class AdminController {
 
   @Get('me')
   @UseGuards(AuthGuard('admin'))
-  verifyAdminByToken(@GetAdmin('') admin) {
+  verifyAdminByToken(@GetAdmin('') admin: Admin) {
     return this.adminService.verifyAdminByToken(admin.email);
   }
 
   @Post('invitation')
-  @Roles(SUPER_ADMIN, CHAIRMAN)
+  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
   @UseGuards(AuthGuard('admin'), RolesGuard)
   adminInvitation(@Body() adminInvitationDto: AdminInvitationDto): Promise<void> {
     return this.adminService.adminInvitation(adminInvitationDto);
+  }
+
+  @Get('invitation')
+  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
+  @UseGuards(AuthGuard('admin'), RolesGuard)
+  getAllInvitations(@GetAdmin('') admin: AdminPayload): Promise<Admin[]> {
+    return this.adminService.getAllInvitations(admin);
+  }
+
+  @Get('resend-invitation/:id')
+  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
+  @UseGuards(AuthGuard('admin'), RolesGuard)
+  resendInvitation(@Param('id') id: string): Promise<void> {
+    return this.adminService.resendInvitation(id);
   }
 
   @Get('verify/:partialToken')

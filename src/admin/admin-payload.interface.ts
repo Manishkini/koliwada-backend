@@ -12,4 +12,5 @@ export interface AdminPayload {
     mobileNumber: string
     email: string
     permissions: object[]
+    accessTo?: string[]
 }

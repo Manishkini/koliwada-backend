@@ -23,6 +23,10 @@ export class TehsilService {
     return `This action returns all tehsil`;
   }
 
+  async findByDistrictID(districtID: string): Promise<Tehsil[]> {
+    return await this.tehsilModel.find({ district: districtID });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} tehsil`;
   }

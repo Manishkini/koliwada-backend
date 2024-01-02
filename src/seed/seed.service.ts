@@ -29,8 +29,8 @@ export class SeedService implements OnApplicationBootstrap {
         nameNative: 'महाराष्ट्र',
       });
       const district = new this.districtModel({
-        name: 'Thane',
-        nameNative: 'ठाणे',
+        name: 'Mumbai Suburban',
+        nameNative: 'मुंबई उपनगर',
         state: state.id,
       });
       const tehsil = new this.tehsilModel({

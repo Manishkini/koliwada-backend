@@ -20,7 +20,11 @@ export class DistrictService {
   }
 
   findAll() {
-    return `This action returns all district`;
+    return this.districtModel.find({});
+  }
+
+  async findByStateID(stateID: string): Promise<District[]> {
+    return await this.districtModel.find({ state: stateID });
   }
 
   findOne(id: number) {

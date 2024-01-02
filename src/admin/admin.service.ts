@@ -12,7 +12,7 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Admin, AdminDocument } from 'src/schemas/admin.schema';
 import { JwtService } from '@nestjs/jwt';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
@@ -22,6 +22,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
 import { GetAdmin } from './get-admin.decorator';
+import { InvitationStatus } from './invitation-status.enum';
+
+const ObjectId = mongoose.Types.ObjectId
 
 @Injectable()
 export class AdminService {
@@ -114,6 +117,108 @@ export class AdminService {
     await this.cacheManager.set(partialToken, JSON.stringify(admin));
   }
 
+  async getAllInvitations(admin: AdminPayload): Promise<Admin[]> {
+    const { role, villageID, accessTo, id } = admin
+    let allInvitations;
+    if (role === 'super_admin' || role === 'admin') {
+      const matchOptions = role === 'super_admin'
+        ? { 'role.slug': { $ne: 'super_admin' } }
+        : { $or: [{ 'role.slug': { $ne: 'super_admin' } }, { 'role.slug': { $ne: 'admin' } }] }
+
+      allInvitations = await this.adminModal.aggregate([
+        {
+          $unset: ["password", "isPanCardVerified", "isAadharCardVerified", "__v", "isMobileNumberVerified", "isEmailVerified"]
+        },
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'role',
+            foreignField: '_id',
+            as: 'role'
+          }
+        },
+        {
+          $unwind: '$role'
+        },
+        {
+          $match: { ...matchOptions }
+        },
+        {
+          $lookup: {
+            from: 'villages',
+            localField: 'village',
+            foreignField: '_id',
+            as: 'village'
+          }
+        },
+        {
+          $unwind: '$village'
+        },
+        {
+          $group: { _id: "$village", invitations: { $push: "$$ROOT" } }
+        },
+      ])
+    } else {
+      allInvitations = await this.adminModal.aggregate([
+        {
+          $unset: ["password", "isPanCardVerified", "isAadharCardVerified", "__v", "isMobileNumberVerified", "isEmailVerified"]
+        },
+        {
+          $lookup: {
+            from: 'roles',
+            localField: 'role',
+            foreignField: '_id',
+            as: 'role'
+          }
+        },
+        {
+          $unwind: '$role'
+        },
+        {
+          $lookup: {
+            from: 'villages',
+            localField: 'village',
+            foreignField: '_id',
+            as: 'village'
+          }
+        },
+        {
+          $unwind: '$village'
+        },
+        {
+          $match: {
+            $and: [
+              { 'village._id': new ObjectId(villageID as unknown as string) },
+              { 'role.slug': { $in: accessTo } },
+              { '_id': { $ne: new ObjectId(id as unknown as string) } }
+            ]
+          }
+        },
+        {
+          $addFields: {
+            id: '$_id'
+          }
+        },
+        {
+          $project: {
+            '_id': 0
+          }
+        }
+      ])
+    }
+    return allInvitations;
+  }
+
+  async resendInvitation(id: string): Promise<void> {
+    const admin: AdminDocument = await this.adminModal.findById(id);
+    if (!admin) {
+      throw new NotFoundException('Admin Not Found');
+    }
+    const partialToken: string = uuidv4();
+    console.log(String(partialToken));
+    await this.cacheManager.set(partialToken, JSON.stringify(admin));
+  }
+
   async getAdminInitialDetails(
     adminPartialToken: string,
   ): Promise<AdminDocument> {
@@ -147,6 +252,7 @@ export class AdminService {
       const hashedPassword = await bcrypt.hash(password, salt);
       const adminUpdate = await this.adminModal.findByIdAndUpdate(admin._id, {
         password: hashedPassword,
+        invitationStatus: InvitationStatus.VERIFIED
       });
       if (!adminUpdate && !adminUpdate._id) {
         throw new InternalServerErrorException(

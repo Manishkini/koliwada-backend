@@ -20,7 +20,7 @@ export class StateService {
   }
 
   findAll() {
-    return `This action returns all state`;
+    return this.stateModel.find({});
   }
 
   findOne(id: number) {

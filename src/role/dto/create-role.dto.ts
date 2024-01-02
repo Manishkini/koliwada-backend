@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsNotEmpty } from "class-validator"
+import { IsArray, IsNotEmpty } from "class-validator"
 
 export class CreateRoleDto {
     @IsNotEmpty()
@@ -11,6 +11,5 @@ export class CreateRoleDto {
     slug: string
 
     @IsArray()
-    @ArrayNotEmpty()
     permissions: object[]
 }

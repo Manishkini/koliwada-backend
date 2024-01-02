@@ -80,7 +80,7 @@ export class Admin {
     @Prop({ type: Boolean, default: false })
     isEmailVerified: boolean
 
-    @Prop({ type: String })
+    @Prop({ type: String, default: InvitationStatus.INVITED })
     invitationStatus: InvitationStatus
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })

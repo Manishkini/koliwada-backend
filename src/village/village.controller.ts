@@ -31,6 +31,13 @@ export class VillageController {
     return this.villageService.findAll();
   }
 
+  @Get('tehsil/:tehsilID')
+  @Roles(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  findByTehsilID(@Param('tehsilID') tehsilID: string) {
+    return this.villageService.findByTehsilID(tehsilID);
+  }
+
   @Get(':id')
   @Roles(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
