@@ -27,20 +27,24 @@ export class SeedService implements OnApplicationBootstrap {
       const state = new this.stateModel({
         name: 'Maharashtra',
         nameNative: 'महाराष्ट्र',
+        slug: 'maharashtra',
       });
       const district = new this.districtModel({
         name: 'Mumbai Suburban',
         nameNative: 'मुंबई उपनगर',
+        slug: 'mumbai_suburban',
         state: state.id,
       });
       const tehsil = new this.tehsilModel({
         name: 'Borivali',
         nameNative: 'बोरिवली',
+        slug: 'borivali',
         district: district.id,
       });
       const village = new this.villageModel({
         name: 'Charkop',
         nameNative: 'चारकोप',
+        slug: 'charkop',
         tehsil: tehsil.id,
       });
       const permissionPermission = new this.permissionModel({ name: 'Permission' });
@@ -65,17 +69,39 @@ export class SeedService implements OnApplicationBootstrap {
           }
         ],
       });
+      const chairmanRole = new this.roleModel({
+        name: 'Chairman',
+        nameNative: 'अध्यक्ष',
+        slug: 'chairman',
+        permissions: [
+          {
+            subject: 'Invitation',
+            actions: ['read', 'create', 'update', 'delete']
+          }
+        ],
+      });
       const salt = await bcrypt.genSalt();
-      const hashedPassword = await bcrypt.hash('Test@123', salt);
+      const hashedPasswordSuperAdmin = await bcrypt.hash('superAdmin', salt);
+      const hashedPasswordChairman = await bcrypt.hash('chairman', salt);
       const admin = new this.adminModel({
         state: state.id,
         district: district.id,
         tehsil: tehsil.id,
         village: village.id,
         role: role.id,
-        email: 'test@koliwada.com',
+        email: 'superadmin@vuexy.com',
         mobileNumber: '+917894561230',
-        password: hashedPassword,
+        password: hashedPasswordSuperAdmin,
+      });
+      const chairman = new this.adminModel({
+        state: state.id,
+        district: district.id,
+        tehsil: tehsil.id,
+        village: village.id,
+        role: chairmanRole.id,
+        email: 'chairman@vuexy.com',
+        mobileNumber: '+917894561231',
+        password: hashedPasswordChairman,
       });
       await state.save();
       await district.save();
@@ -85,7 +111,9 @@ export class SeedService implements OnApplicationBootstrap {
       await permissionRole.save();
       await permissionAdmin.save();
       await role.save();
+      await chairmanRole.save();
       await admin.save();
+      await chairman.save();
     }
   }
   onApplicationBootstrap() {

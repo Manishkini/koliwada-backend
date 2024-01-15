@@ -5,6 +5,12 @@ export class CreateDistrictDto {
     name: string
 
     @IsNotEmpty()
+    nameNative: string
+
+    @IsNotEmpty()
+    slug: string
+
+    @IsNotEmpty()
     @IsMongoId()
     state: string
 

@@ -82,8 +82,11 @@ export class User {
     @Prop({ type: Boolean, default: false })
     isAadharCardVerified: boolean
 
+    @Prop({ type: Boolean, default: false })
+    isApproved: boolean
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
-    verifiedBy: Admin
+    profileApprovedBy: Admin
 
     @Prop({ type: String, required: true })
     password: string

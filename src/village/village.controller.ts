@@ -25,8 +25,6 @@ export class VillageController {
   }
 
   @Get()
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
   findAll(): Promise<Village[]> {
     return this.villageService.findAll();
   }

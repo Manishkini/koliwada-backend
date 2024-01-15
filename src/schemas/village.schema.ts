@@ -22,6 +22,9 @@ export class Village {
     @Prop({ required: true })
     nameNative: string;
 
+    @Prop({ required: true })
+    slug: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Tehsil', required: true })
     tehsil: Tehsil;
 

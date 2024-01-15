@@ -6,6 +6,7 @@ import { Model } from "mongoose";
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { User } from "src/schemas/user.schema";
 import { UserPayload } from "./user-payload.interface";
+import { UserEntity } from './entity/user.entity'
 
 @Injectable()
 export class JwtUserStrategy extends PassportStrategy(Strategy, 'user') {
@@ -19,14 +20,16 @@ export class JwtUserStrategy extends PassportStrategy(Strategy, 'user') {
         })
     }
 
-    async validate(payload: UserPayload): Promise<User> {
+    async validate(payload: UserPayload): Promise<UserPayload> {
         const { id } = payload
-        const user: User = await this.userModal.findById(id).select('-password');
+        const user: UserEntity = await this.userModal.findById(id).select('-password');
 
         if (!user) {
             throw new UnauthorizedException()
         }
+        payload.id = user.id;
+        payload.villageID = user.village.id;
 
-        return user;
+        return payload;
     }
 }

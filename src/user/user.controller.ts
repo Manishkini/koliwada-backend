@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from 'src/schemas/user.schema';
 import { SignInUserDto } from './dto/sign-in-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './get-user.decorator';
+import { GetAdmin } from 'src/admin/get-admin.decorator';
+import { AdminPayload } from 'src/admin/admin-payload.interface';
 
 @Controller()
 export class UserController {
@@ -14,8 +18,9 @@ export class UserController {
     return this.userService.signUpUser(createUserDto);
   }
 
-  @Post('singin')
-  signInUser(@Body() signInUserDto: SignInUserDto): Promise<{ accessToken: string }> {
+  @Post('signin')
+  @HttpCode(200)
+  signInUser(@Body() signInUserDto: SignInUserDto): Promise<{ accessToken: string, user: User }> {
     return this.userService.signInUser(signInUserDto);
   }
 
@@ -25,8 +30,9 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  @UseGuards(AuthGuard('admin'))
+  findAll(@GetAdmin('') admin: AdminPayload) {
+    return this.userService.findAll(admin);
   }
 
   @Get(':id')

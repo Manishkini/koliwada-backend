@@ -5,6 +5,12 @@ export class CreateTehsilDto {
     name: string
 
     @IsNotEmpty()
+    nameNative: string
+
+    @IsNotEmpty()
+    slug: string
+
+    @IsNotEmpty()
     @IsMongoId()
     district: string
 

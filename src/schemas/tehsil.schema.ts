@@ -22,6 +22,9 @@ export class Tehsil {
     @Prop({ required: true })
     nameNative: string;
 
+    @Prop({ required: true })
+    slug: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'District', required: true })
     district: District;
 

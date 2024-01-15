@@ -2,12 +2,13 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/user.schema';
+import { User, UserDocument } from 'src/schemas/user.schema';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt'
 import { SignInUserDto } from './dto/sign-in-user.dto';
 import { UserPayload } from './user-payload.interface';
+import { AdminPayload } from 'src/admin/admin-payload.interface';
 
 @Injectable()
 export class UserService {
@@ -25,17 +26,16 @@ export class UserService {
         return user;
     }
 
-    async signInUser(signInUserDto: SignInUserDto): Promise<{ accessToken: string }> {
-        const { mobileNumber, password } = signInUserDto
-        const user = await this.userModal.findOne({
-            mobileNumber
+    async signInUser(signInUserDto: SignInUserDto): Promise<{ accessToken: string, user: User }> {
+        const { email, password } = signInUserDto
+        const user: User = await this.userModal.findOne({
+            email
         }).populate('village');
 
         if (user) {
             const isPasswordMatched = await bcrypt.compare(password, user.password)
             if (isPasswordMatched) {
                 const payload: UserPayload = {
-                    id: user.id,
                     firstName: user.firstName,
                     middleName: user.middleName,
                     lastName: user.lastName,
@@ -45,7 +45,7 @@ export class UserService {
                 }
                 const accessToken = this.jwtService.sign(payload)
 
-                return { accessToken }
+                return { accessToken, user }
             } else {
                 // wrong password exception
                 throw new UnauthorizedException("Please check you login credentials")
@@ -60,8 +60,15 @@ export class UserService {
         return 'This action adds a new user';
     }
 
-    findAll() {
-        return `This action returns all user`;
+    async findAll(admin: AdminPayload): Promise<User[]> {
+        const { role, village, villageID } = admin
+        let users;
+        if (["super_admin", 'admin'].includes(role)) {
+            users = this.userModal.find({}).populate('village');
+        } else {
+            users = this.userModal.find({ village: villageID }).populate('village');
+        }
+        return users
     }
 
     findOne(id: number) {

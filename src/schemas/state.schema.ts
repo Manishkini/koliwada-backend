@@ -21,6 +21,9 @@ export class State {
     @Prop({ required: true })
     nameNative: string;
 
+    @Prop({ required: true })
+    slug: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Admin' })
     createdBy: Admin;
 

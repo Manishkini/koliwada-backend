@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { AdminService } from './admin.service';
 // import { CreateAdminAddressDetails, CreateAdminPersonalDetails } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
@@ -12,6 +12,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
 import { GetAdmin } from './get-admin.decorator';
 import { AdminPayload } from './admin-payload.interface';
+import { FilterAdminDto } from './dto/filter-admin.dto';
 
 @Controller()
 export class AdminController {
@@ -32,6 +33,7 @@ export class AdminController {
   // }
 
   @Post('signin')
+  @HttpCode(200)
   signInAdmin(@Body() signInAdminDto: SignInAdminDto): Promise<{ accessToken: string }> {
     return this.adminService.signInAdmin(signInAdminDto);
   }
@@ -49,11 +51,12 @@ export class AdminController {
     return this.adminService.adminInvitation(adminInvitationDto);
   }
 
-  @Get('invitation')
+  @Post('invitation/filter')
+  @HttpCode(200)
   @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
   @UseGuards(AuthGuard('admin'), RolesGuard)
-  getAllInvitations(@GetAdmin('') admin: AdminPayload): Promise<Admin[]> {
-    return this.adminService.getAllInvitations(admin);
+  getAllInvitations(@GetAdmin('') admin: AdminPayload, @Body() filterAdminDto: FilterAdminDto): Promise<Admin[]> {
+    return this.adminService.getAllInvitations(admin, filterAdminDto);
   }
 
   @Get('resend-invitation/:id')

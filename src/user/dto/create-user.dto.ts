@@ -12,7 +12,6 @@ import {
     MaxLength,
     MinLength
 } from "class-validator"
-import { Admin } from "src/schemas/admin.schema"
 import { Village } from "src/schemas/village.schema"
 
 export class CreateUserDto {
@@ -30,6 +29,18 @@ export class CreateUserDto {
     @IsAlpha()
     @IsString()
     lastName: string
+
+    @IsNotEmpty()
+    @IsString()
+    firstNameNative: string
+
+    @IsNotEmpty()
+    @IsString()
+    middleNameNative: string
+
+    @IsNotEmpty()
+    @IsString()
+    lastNameNative: string
 
     @IsNotEmpty()
     @IsPhoneNumber()
@@ -95,18 +106,10 @@ export class CreateUserDto {
     @IsBoolean()
     isAadharCardVerified: boolean
 
-    @IsMongoId()
-    @IsOptional()
-    verifiedBy: Admin
-
     @IsNotEmpty()
     @IsString()
     @MinLength(8)
     @MaxLength(32)
     @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, { message: 'Password is too weak' })
     password: string
-
-    @IsOptional()
-    @IsBoolean()
-    active: boolean
 }

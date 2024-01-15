@@ -12,7 +12,7 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Admin, AdminDocument } from 'src/schemas/admin.schema';
 import { JwtService } from '@nestjs/jwt';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types, PipelineStage } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
@@ -23,8 +23,17 @@ import { Cache } from 'cache-manager';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
 import { GetAdmin } from './get-admin.decorator';
 import { InvitationStatus } from './invitation-status.enum';
+import { FilterAdminDto } from './dto/filter-admin.dto';
 
-const ObjectId = mongoose.Types.ObjectId
+type TObjectId = Types.ObjectId;
+const ObjectId = (id) => { return new mongoose.Types.ObjectId(id as unknown as string) }
+
+interface MongoMatchObject {
+  $and?: object
+  role?: TObjectId
+  village?: TObjectId
+  invitationStatus?: InvitationStatus
+}
 
 @Injectable()
 export class AdminService {
@@ -53,7 +62,7 @@ export class AdminService {
     signInAdminDto: SignInAdminDto,
   ): Promise<{ accessToken: string; admin: Admin }> {
     const { email, password } = signInAdminDto;
-    const isValidAdmin = await this.adminModal
+    const isValidAdmin: Admin = await this.adminModal
       .findOne({ email })
       .populate(['role', 'state', 'district', 'tehsil', 'village']);
 
@@ -63,7 +72,7 @@ export class AdminService {
         isValidAdmin.password,
       );
       if (isPasswordMatched) {
-        const admin = await this.adminModal
+        const admin: Admin = await this.adminModal
           .findOne({
             email,
           })
@@ -117,96 +126,92 @@ export class AdminService {
     await this.cacheManager.set(partialToken, JSON.stringify(admin));
   }
 
-  async getAllInvitations(admin: AdminPayload): Promise<Admin[]> {
-    const { role, villageID, accessTo, id } = admin
-    let allInvitations;
-    if (role === 'super_admin' || role === 'admin') {
-      const matchOptions = role === 'super_admin'
-        ? { 'role.slug': { $ne: 'super_admin' } }
-        : { $or: [{ 'role.slug': { $ne: 'super_admin' } }, { 'role.slug': { $ne: 'admin' } }] }
+  async getAllInvitations(admin: AdminPayload, filterAdminDto: FilterAdminDto): Promise<Admin[]> {
+    try {
+      const { role, villageID, accessTo, id } = admin
+      const pipeline: PipelineStage[] = [];
+      const matchAndConditions: any[] = [];
+      const matchOrConditions: any[] = [];
+      const DEFAULT_LIMIT = 10;
+      const DEFAULT_SKIP = 0;
 
-      allInvitations = await this.adminModal.aggregate([
-        {
-          $unset: ["password", "isPanCardVerified", "isAadharCardVerified", "__v", "isMobileNumberVerified", "isEmailVerified"]
-        },
-        {
+      if (role !== 'super_admin' && role !== 'admin') {
+        pipeline.push({ $match: { village: ObjectId(villageID as unknown as string) } })
+        pipeline.push({
           $lookup: {
             from: 'roles',
             localField: 'role',
             foreignField: '_id',
-            as: 'role'
-          }
-        },
-        {
-          $unwind: '$role'
-        },
-        {
-          $match: { ...matchOptions }
-        },
-        {
-          $lookup: {
-            from: 'villages',
-            localField: 'village',
-            foreignField: '_id',
-            as: 'village'
-          }
-        },
-        {
-          $unwind: '$village'
-        },
-        {
-          $group: { _id: "$village", invitations: { $push: "$$ROOT" } }
-        },
-      ])
-    } else {
-      allInvitations = await this.adminModal.aggregate([
-        {
-          $unset: ["password", "isPanCardVerified", "isAadharCardVerified", "__v", "isMobileNumberVerified", "isEmailVerified"]
-        },
-        {
+            as: 'role',
+          },
+        });
+        pipeline.push({ $unwind: '$role' })
+        matchAndConditions.push({ 'role.slug': { $ne: 'super_admin' } })
+        matchAndConditions.push({ 'role.slug': { $ne: 'admin' } })
+      } else if (role === 'admin') {
+        pipeline.push({
           $lookup: {
             from: 'roles',
             localField: 'role',
             foreignField: '_id',
-            as: 'role'
-          }
-        },
-        {
-          $unwind: '$role'
-        },
-        {
-          $lookup: {
-            from: 'villages',
-            localField: 'village',
-            foreignField: '_id',
-            as: 'village'
-          }
-        },
-        {
-          $unwind: '$village'
-        },
-        {
-          $match: {
-            $and: [
-              { 'village._id': new ObjectId(villageID as unknown as string) },
-              { 'role.slug': { $in: accessTo } },
-              { '_id': { $ne: new ObjectId(id as unknown as string) } }
-            ]
-          }
-        },
-        {
-          $addFields: {
-            id: '$_id'
-          }
-        },
-        {
-          $project: {
-            '_id': 0
-          }
+            as: 'role',
+          },
+        });
+        pipeline.push({ $unwind: '$role' })
+        matchAndConditions.push({ 'role.slug': { $ne: 'super_admin' } })
+      }
+
+      if (filterAdminDto && Object.keys(filterAdminDto).length) {
+        if (filterAdminDto.role) {
+          matchAndConditions.push(
+            role === 'admin'
+              ? { 'role._id': ObjectId(filterAdminDto.role as unknown as string) }
+              : { role: ObjectId(filterAdminDto.role as unknown as string) }
+          )
         }
-      ])
+        if (filterAdminDto.state) {
+          matchAndConditions.push({ state: ObjectId(filterAdminDto.state as unknown as string) })
+        }
+        if (filterAdminDto.district) {
+          matchAndConditions.push({ district: ObjectId(filterAdminDto.district as unknown as string) })
+        }
+        if (filterAdminDto.tehsil) {
+          matchAndConditions.push({ tehsil: ObjectId(filterAdminDto.tehsil as unknown as string) })
+        }
+        if (filterAdminDto.village) {
+          matchAndConditions.push({ village: ObjectId(filterAdminDto.village as unknown as string) })
+        }
+        if (filterAdminDto.invitationStatus) {
+          matchAndConditions.push({ invitationStatus: filterAdminDto.invitationStatus })
+        }
+        if (filterAdminDto.searchString) {
+          matchOrConditions.push({ firstName: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ middleName: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ lastName: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ firstNameNative: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ middleNameNative: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ lastNameNative: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ email: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+          matchOrConditions.push({ phone: { $regex: new RegExp(filterAdminDto.searchString, 'i') } })
+        }
+      }
+
+      matchAndConditions.push({ _id: { $ne: ObjectId(id as unknown as string) } })
+      if (matchAndConditions?.length && matchOrConditions?.length) {
+        pipeline.push({ $match: { $and: [...matchAndConditions, { $or: matchOrConditions }] } })
+      } else if (matchAndConditions?.length) {
+        pipeline.push({ $match: { $and: matchAndConditions } })
+      } else if (matchOrConditions?.length) {
+        pipeline.push({ $match: { $or: matchOrConditions } })
+      }
+      pipeline.push({ $project: { password: 0, __v: 0 } })
+      pipeline.push({ $limit: filterAdminDto.limit || DEFAULT_LIMIT })
+      pipeline.push({ $skip: filterAdminDto.skip || DEFAULT_SKIP })
+
+      return await this.adminModal.aggregate(pipeline);
+    } catch (err) {
+      console.log(err)
     }
-    return allInvitations;
   }
 
   async resendInvitation(id: string): Promise<void> {

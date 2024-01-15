@@ -4,6 +4,12 @@ export class CreateStateDto {
     @IsNotEmpty()
     name: string
 
+    @IsNotEmpty()
+    nameNative: string
+
+    @IsNotEmpty()
+    slug: string
+
     @IsOptional()
     @IsMongoId()
     createdBy: string

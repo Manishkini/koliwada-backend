@@ -22,6 +22,9 @@ export class District {
     @Prop({ required: true })
     nameNative: string;
 
+    @Prop({ required: true })
+    slug: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'State', required: true })
     state: State;
 

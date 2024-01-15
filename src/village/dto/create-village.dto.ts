@@ -5,6 +5,12 @@ export class CreateVillageDto {
     name: string
 
     @IsNotEmpty()
+    nameNative: string
+
+    @IsNotEmpty()
+    slug: string
+
+    @IsNotEmpty()
     @IsMongoId()
     tehsil: string
 
