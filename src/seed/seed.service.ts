@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import { Admin } from 'src/schemas/admin.schema';
 import { District } from 'src/schemas/district.schema';
 import { Permission } from 'src/schemas/permission.schema';
-import { Role } from 'src/schemas/role.schema';
 import { State } from 'src/schemas/state.schema';
 import { Tehsil } from 'src/schemas/tehsil.schema';
 import { Village } from 'src/schemas/village.schema';
 import * as bcrypt from 'bcrypt';
+import { Responsibility } from 'src/schemas/responsibility.schema';
+import { Role } from 'src/schemas/role.schema';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -19,6 +20,7 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectModel(Tehsil.name) private tehsilModel: Model<Tehsil>,
     @InjectModel(Village.name) private villageModel: Model<Village>,
     @InjectModel(Role.name) private roleModel: Model<Role>,
+    @InjectModel(Responsibility.name) private responsibilityModel: Model<Responsibility>,
     @InjectModel(Permission.name) private permissionModel: Model<Permission>,
   ) { }
   async initialSeed() {
@@ -47,14 +49,38 @@ export class SeedService implements OnApplicationBootstrap {
         slug: 'charkop',
         tehsil: tehsil.id,
       });
+
       const permissionPermission = new this.permissionModel({ name: 'Permission' });
       const permissionRole = new this.permissionModel({ name: 'Role' });
+      const permissionResponsibility = new this.permissionModel({ name: 'Responsibility' });
       const permissionAdmin = new this.permissionModel({ name: 'Invitation' });
-      const role = new this.roleModel({
+
+      const roleSuperAdmin = new this.roleModel({
         name: 'Super Admin',
-        nameNative: 'प्रशासक',
+        nameNative: 'उच्च प्रशासक',
         slug: 'super_admin',
+        rank: 1
+      });
+      const roleAdmin = new this.roleModel({
+        name: 'Admin',
+        nameNative: 'प्रशासक',
+        slug: 'admin',
+        rank: 2
+      });
+      const roleChairman = new this.roleModel({
+        name: 'Chairman',
+        nameNative: 'अध्यक्ष',
+        slug: 'chairman',
+        rank: 3
+      });
+
+      const responsibilitySuperAdmin = new this.responsibilityModel({
+        role: roleSuperAdmin._id,
         permissions: [
+          {
+            subject: 'Responsibility',
+            actions: ['read', 'create', 'update', 'delete']
+          },
           {
             subject: 'Permission',
             actions: ['read', 'create', 'update', 'delete']
@@ -69,10 +95,29 @@ export class SeedService implements OnApplicationBootstrap {
           }
         ],
       });
-      const chairmanRole = new this.roleModel({
-        name: 'Chairman',
-        nameNative: 'अध्यक्ष',
-        slug: 'chairman',
+      const responsibilityAdmin = new this.responsibilityModel({
+        role: roleAdmin._id,
+        permissions: [
+          {
+            subject: 'Responsibility',
+            actions: ['read']
+          },
+          {
+            subject: 'Permission',
+            actions: ['read', 'create', 'update', 'delete']
+          },
+          {
+            subject: 'Role',
+            actions: ['read', 'create', 'update', 'delete']
+          },
+          {
+            subject: 'Invitation',
+            actions: ['read', 'create', 'update', 'delete']
+          }
+        ],
+      });
+      const responsibilityChairman = new this.responsibilityModel({
+        role: roleChairman._id,
         permissions: [
           {
             subject: 'Invitation',
@@ -80,38 +125,67 @@ export class SeedService implements OnApplicationBootstrap {
           }
         ],
       });
+
       const salt = await bcrypt.genSalt();
       const hashedPasswordSuperAdmin = await bcrypt.hash('superAdmin', salt);
+      const hashedPasswordAdmin = await bcrypt.hash('admin', salt);
       const hashedPasswordChairman = await bcrypt.hash('chairman', salt);
+
+      const superAdmin = new this.adminModel({
+        state: state.id,
+        district: district.id,
+        tehsil: tehsil.id,
+        village: village.id,
+        responsibility: responsibilitySuperAdmin.id,
+        email: 'superadmin@vuexy.com',
+        mobileNumber: '+917894561230',
+        password: hashedPasswordSuperAdmin,
+      });
       const admin = new this.adminModel({
         state: state.id,
         district: district.id,
         tehsil: tehsil.id,
         village: village.id,
-        role: role.id,
-        email: 'superadmin@vuexy.com',
-        mobileNumber: '+917894561230',
-        password: hashedPasswordSuperAdmin,
+        responsibility: responsibilityAdmin.id,
+        email: 'admin@vuexy.com',
+        mobileNumber: '+917894561231',
+        password: hashedPasswordAdmin,
       });
       const chairman = new this.adminModel({
         state: state.id,
         district: district.id,
         tehsil: tehsil.id,
         village: village.id,
-        role: chairmanRole.id,
+        responsibility: responsibilityChairman.id,
         email: 'chairman@vuexy.com',
-        mobileNumber: '+917894561231',
+        mobileNumber: '+917894561232',
         password: hashedPasswordChairman,
       });
+
+      // Locations
       await state.save();
       await district.save();
       await tehsil.save();
       await village.save();
+
+      // Permissions
       await permissionPermission.save();
       await permissionRole.save();
       await permissionAdmin.save();
-      await role.save();
-      await chairmanRole.save();
+      await permissionResponsibility.save();
+
+      // Roles
+      await roleSuperAdmin.save();
+      await roleAdmin.save();
+      await roleChairman.save();
+
+      // Responsibility
+      await responsibilitySuperAdmin.save();
+      await responsibilityAdmin.save();
+      await responsibilityChairman.save();
+
+      // Admins
+      await superAdmin.save();
       await admin.save();
       await chairman.save();
     }

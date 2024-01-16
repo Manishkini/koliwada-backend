@@ -6,11 +6,12 @@ export interface AdminPayload {
     middleName: string
     lastName: string
     role: string
-    roleID?: mongoose.Schema.Types.ObjectId
+    rank: number
+    responsibilityID?: mongoose.Schema.Types.ObjectId
     village: string
     villageID?: mongoose.Schema.Types.ObjectId
     mobileNumber: string
     email: string
-    permissions: object[]
+    permissions?: object[]
     accessTo?: string[]
 }

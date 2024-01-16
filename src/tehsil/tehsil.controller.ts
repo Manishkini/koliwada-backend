@@ -6,17 +6,17 @@ import { Tehsil } from 'src/schemas/tehsil.schema';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/role/roles.decorator';
+import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
 import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
-import { RolesGuard } from 'src/role/roles.guard';
+import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 
 @Controller('tehsil')
-@Roles(SUPER_ADMIN)
+@Responsibilities(SUPER_ADMIN)
 export class TehsilController {
   constructor(private readonly tehsilService: TehsilService) { }
 
   @Post()
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   create(
     @Body() createTehsilDto: CreateTehsilDto,
     @GetAdmin() admin: AdminDocument
@@ -25,34 +25,34 @@ export class TehsilController {
   }
 
   @Get()
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findAll() {
     return this.tehsilService.findAll();
   }
 
   @Get('district/:districtID')
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findByDistrictID(@Param('districtID') districtID: string) {
     return this.tehsilService.findByDistrictID(districtID);
   }
 
   @Get(':id')
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findOne(@Param('id') id: string) {
     return this.tehsilService.findOne(+id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   update(@Param('id') id: string, @Body() updateTehsilDto: UpdateTehsilDto) {
     return this.tehsilService.update(+id, updateTehsilDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   remove(@Param('id') id: string) {
     return this.tehsilService.remove(+id);
   }

@@ -22,13 +22,23 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
 
     async validate(payload: AdminPayload): Promise<AdminPayload> {
         const { mobileNumber } = payload
-        const admin: AdminEntity = await this.adminModal.findOne({ mobileNumber }).populate(['role', 'village']);
+        const admin: AdminEntity = await this.adminModal
+            .findOne({ mobileNumber })
+            .populate(['responsibility', 'village'])
+            .populate({
+                path: 'responsibility',
+                populate: {
+                    path: 'role'
+                }
+            });
 
         if (!admin) {
             throw new UnauthorizedException()
         }
         payload.id = admin.id;
-        payload.roleID = admin.role.id;
+        payload.responsibilityID = admin.responsibility.id;
+        payload.role = admin.responsibility.role.slug;
+        payload.rank = admin.responsibility.role.rank;
         payload.villageID = admin.village.id;
 
         return payload;

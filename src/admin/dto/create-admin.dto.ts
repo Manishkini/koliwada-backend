@@ -18,7 +18,7 @@ export class CreateAdminDto {
 
     @IsNotEmpty()
     @IsMongoId()
-    role: string
+    responsibility: string
 
     @IsNotEmpty()
     @IsMongoId()

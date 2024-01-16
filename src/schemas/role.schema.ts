@@ -23,8 +23,11 @@ export class Role {
     @Prop({ required: true })
     slug: string;
 
-    @Prop({ type: [Object] })
-    permissions: Object[];
+    @Prop({ required: true })
+    rank: number;
+
+    // @Prop({ type: [Object] })
+    // permissions: Object[];
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);

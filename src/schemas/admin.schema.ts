@@ -6,6 +6,7 @@ import { InvitationStatus } from 'src/admin/invitation-status.enum';
 import { State } from './state.schema';
 import { District } from './district.schema';
 import { Tehsil } from './tehsil.schema';
+import { Responsibility } from './responsibility.schema';
 
 export type AdminDocument = HydratedDocument<Admin>;
 
@@ -50,8 +51,8 @@ export class Admin {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Village', required: true })
     village: Village;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true })
-    role: Role;
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Responsibility', required: true })
+    responsibility: Responsibility;
 
     @Prop({ type: String, unique: true })
     mobileNumber: string;

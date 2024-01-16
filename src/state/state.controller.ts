@@ -6,17 +6,17 @@ import { State } from 'src/schemas/state.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
-import { Roles } from 'src/role/roles.decorator';
+import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
 import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
-import { RolesGuard } from 'src/role/roles.guard';
+import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 
 @Controller('state')
-@Roles(SUPER_ADMIN)
+@Responsibilities(SUPER_ADMIN)
 export class StateController {
   constructor(private readonly stateService: StateService) { }
 
   @Post()
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   create(
     @Body() createStateDto: CreateStateDto,
     @GetAdmin() admin: AdminDocument
@@ -25,27 +25,27 @@ export class StateController {
   }
 
   @Get()
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findAll() {
     return this.stateService.findAll();
   }
 
   @Get(':id')
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findOne(@Param('id') id: string) {
     return this.stateService.findOne(+id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   update(@Param('id') id: string, @Body() updateStateDto: UpdateStateDto) {
     return this.stateService.update(+id, updateStateDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   remove(@Param('id') id: string) {
     return this.stateService.remove(+id);
   }

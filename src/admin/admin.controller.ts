@@ -6,8 +6,8 @@ import { Admin, AdminDocument } from 'src/schemas/admin.schema';
 import { SignInAdminDto } from './dto/sign-in-admin.dto';
 import { AdminInvitationDto } from './dto/admin-invitation.dto';
 import { CHAIRMAN, SUPER_ADMIN, VICE_PRESIDENT } from 'src/role/roles-list.enum';
-import { Roles } from 'src/role/roles.decorator';
-import { RolesGuard } from 'src/role/roles.guard';
+import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
+import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateAdminPasswordDto } from './dto/create-admin.dto';
 import { GetAdmin } from './get-admin.decorator';
@@ -19,15 +19,15 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) { }
 
   // @Post('address-details')
-  // @Roles(SUPER_ADMIN, CHAIRMAN)
-  // @UseGuards(AuthGuard('admin'), RolesGuard)
+  // @Responsibilities(SUPER_ADMIN, CHAIRMAN)
+  // @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   // addressDetails(@Body() createAdminAddressDto: CreateAdminAddressDetails): Promise<Admin> {
   //   return this.adminService.addressDetails(createAdminAddressDto);
   // }
 
   // @Post('personal-details')
-  // @Roles(SUPER_ADMIN, CHAIRMAN)
-  // @UseGuards(AuthGuard('admin'), RolesGuard)
+  // @Responsibilities(SUPER_ADMIN, CHAIRMAN)
+  // @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   // personalDetails(@Body() createAdminPersonalDto: CreateAdminPersonalDetails): Promise<Admin> {
   //   return this.adminService.personalDetails(createAdminPersonalDto);
   // }
@@ -45,23 +45,23 @@ export class AdminController {
   }
 
   @Post('invitation')
-  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   adminInvitation(@Body() adminInvitationDto: AdminInvitationDto): Promise<void> {
     return this.adminService.adminInvitation(adminInvitationDto);
   }
 
   @Post('invitation/filter')
   @HttpCode(200)
-  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   getAllInvitations(@GetAdmin('') admin: AdminPayload, @Body() filterAdminDto: FilterAdminDto): Promise<Admin[]> {
     return this.adminService.getAllInvitations(admin, filterAdminDto);
   }
 
   @Get('resend-invitation/:id')
-  @Roles(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   resendInvitation(@Param('id') id: string): Promise<void> {
     return this.adminService.resendInvitation(id);
   }

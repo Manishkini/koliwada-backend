@@ -5,12 +5,12 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { Permission } from 'src/schemas/permission.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { SUPER_ADMIN } from 'src/role/roles-list.enum';
-import { RolesGuard } from 'src/role/roles.guard';
-import { Roles } from 'src/role/roles.decorator';
+import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
+import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
 
 @Controller('permission')
-@Roles(SUPER_ADMIN)
-@UseGuards(AuthGuard('admin'), RolesGuard)
+@Responsibilities(SUPER_ADMIN)
+@UseGuards(AuthGuard('admin'), ResponsibilityGuard)
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) { }
 

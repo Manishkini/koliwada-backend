@@ -27,6 +27,44 @@ import { FilterAdminDto } from './dto/filter-admin.dto';
 
 type TObjectId = Types.ObjectId;
 const ObjectId = (id) => { return new mongoose.Types.ObjectId(id as unknown as string) }
+const populateDocument = [
+  {
+    from: 'responsibilities',
+    localField: 'responsibility',
+    foreignField: '_id',
+    as: 'responsibility',
+  },
+  {
+    from: 'states',
+    localField: 'state',
+    foreignField: '_id',
+    as: 'state',
+  },
+  {
+    from: 'districts',
+    localField: 'district',
+    foreignField: '_id',
+    as: 'district',
+  },
+  {
+    from: 'tehsils',
+    localField: 'tehsil',
+    foreignField: '_id',
+    as: 'tehsil',
+  },
+  {
+    from: 'villages',
+    localField: 'village',
+    foreignField: '_id',
+    as: 'village',
+  },
+  {
+    from: 'roles',
+    localField: 'responsibility.role',
+    foreignField: '_id',
+    as: 'responsibility.role',
+  },
+]
 
 interface MongoMatchObject {
   $and?: object
@@ -62,31 +100,35 @@ export class AdminService {
     signInAdminDto: SignInAdminDto,
   ): Promise<{ accessToken: string; admin: Admin }> {
     const { email, password } = signInAdminDto;
-    const isValidAdmin: Admin = await this.adminModal
-      .findOne({ email })
-      .populate(['role', 'state', 'district', 'tehsil', 'village']);
+    const admin: Admin = await this.adminModal
+      .findOne({
+        email,
+      })
+      .populate(['responsibility', 'state', 'district', 'tehsil', 'village'])
+      .populate({
+        path: 'responsibility',
+        populate: {
+          path: 'role'
+        }
+      }).lean();
 
-    if (isValidAdmin) {
+    if (admin) {
       const isPasswordMatched = await bcrypt.compare(
         password,
-        isValidAdmin.password,
+        admin.password,
       );
       if (isPasswordMatched) {
-        const admin: Admin = await this.adminModal
-          .findOne({
-            email,
-          })
-          .select('-password')
-          .populate(['role', 'state', 'district', 'tehsil', 'village']);
+        delete admin.password;
         const payload: AdminPayload = {
           firstName: admin.firstName,
           middleName: admin.middleName,
           lastName: admin.lastName,
           mobileNumber: admin.mobileNumber,
           email: admin.email,
-          role: admin.role.slug,
+          role: admin.responsibility.role.slug,
           village: admin.village.name,
-          permissions: admin.role.permissions,
+          permissions: admin.responsibility.permissions,
+          rank: admin.responsibility.role.rank,
         };
 
         const accessToken = this.jwtService.sign(payload);
@@ -108,7 +150,13 @@ export class AdminService {
         email,
       })
       .select('-password')
-      .populate(['role', 'state', 'district', 'tehsil', 'village']);
+      .populate(['responsibility', 'state', 'district', 'tehsil', 'village'])
+      .populate({
+        path: 'responsibility',
+        populate: {
+          path: 'role'
+        }
+      });
     return admin
   }
 
@@ -162,11 +210,11 @@ export class AdminService {
       }
 
       if (filterAdminDto && Object.keys(filterAdminDto).length) {
-        if (filterAdminDto.role) {
+        if (filterAdminDto.responsibility) {
           matchAndConditions.push(
             role === 'admin'
-              ? { 'role._id': ObjectId(filterAdminDto.role as unknown as string) }
-              : { role: ObjectId(filterAdminDto.role as unknown as string) }
+              ? { 'responsibility._id': ObjectId(filterAdminDto.responsibility as unknown as string) }
+              : { responsibility: ObjectId(filterAdminDto.responsibility as unknown as string) }
           )
         }
         if (filterAdminDto.state) {
@@ -204,6 +252,12 @@ export class AdminService {
       } else if (matchOrConditions?.length) {
         pipeline.push({ $match: { $or: matchOrConditions } })
       }
+
+      populateDocument.forEach((document) => {
+        pipeline.push({ $lookup: document })
+        pipeline.push({ $unwind: `$${document.as}` })
+      })
+
       pipeline.push({ $project: { password: 0, __v: 0 } })
       pipeline.push({ $limit: filterAdminDto.limit || DEFAULT_LIMIT })
       pipeline.push({ $skip: filterAdminDto.skip || DEFAULT_SKIP })

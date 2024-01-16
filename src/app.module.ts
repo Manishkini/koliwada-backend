@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { RouterModule } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { SeedModule } from './seed/seed.module';
+import { ResponsibilityModule } from './responsibility/responsibility.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { SeedModule } from './seed/seed.module';
     AdminModule,
     UserModule,
     SeedModule,
+    ResponsibilityModule,
   ],
 })
 export class AppModule { }

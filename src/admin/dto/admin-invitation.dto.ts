@@ -47,7 +47,7 @@ export class AdminInvitationDto {
 
     @IsNotEmpty()
     @IsMongoId()
-    role: mongoose.Schema.Types.ObjectId
+    responsibility: mongoose.Schema.Types.ObjectId
 
     @IsNotEmpty()
     @IsPhoneNumber()

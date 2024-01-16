@@ -6,10 +6,10 @@ export class FilterAdminDto {
     @IsString()
     searchString: string
 
-    @ValidateIf((e) => e.role !== '')
+    @ValidateIf((e) => e.responsibility !== '')
     @IsMongoId()
     @IsOptional()
-    role: string
+    responsibility: string
 
     @ValidateIf((e) => e.state !== '')
     @IsOptional()

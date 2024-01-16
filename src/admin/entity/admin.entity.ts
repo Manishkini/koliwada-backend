@@ -21,10 +21,14 @@ export class AdminEntity {
         id: mongoose.Schema.Types.ObjectId;
         name: string;
     }
-    role: {
+    responsibility: {
         id: mongoose.Schema.Types.ObjectId;
-        name: string;
-        slug: string;
+        role: {
+            id: mongoose.Schema.Types.ObjectId;
+            name: string
+            slug: string
+            rank: number
+        };
     }
     mobileNumber: string;
     email: string;

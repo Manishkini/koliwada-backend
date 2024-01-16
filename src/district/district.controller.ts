@@ -6,17 +6,17 @@ import { District } from 'src/schemas/district.schema';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/role/roles.decorator';
+import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
 import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
-import { RolesGuard } from 'src/role/roles.guard';
+import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 
 @Controller('district')
-@Roles(SUPER_ADMIN)
+@Responsibilities(SUPER_ADMIN)
 export class DistrictController {
   constructor(private readonly districtService: DistrictService) { }
 
   @Post()
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   create(
     @Body() createDistrictDto: CreateDistrictDto,
     @GetAdmin() admin: AdminDocument
@@ -25,34 +25,34 @@ export class DistrictController {
   }
 
   @Get()
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findAll() {
     return this.districtService.findAll();
   }
 
   @Get('state/:stateID')
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findByStateID(@Param('stateID') stateID: string) {
     return this.districtService.findByStateID(stateID);
   }
 
   @Get(':id')
-  @Roles(CHAIRMAN)
-  @UseGuards(AuthGuard(['admin', 'user']), RolesGuard)
+  @Responsibilities(CHAIRMAN)
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findOne(@Param('id') id: string) {
     return this.districtService.findOne(+id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   update(@Param('id') id: string, @Body() updateDistrictDto: UpdateDistrictDto) {
     return this.districtService.update(+id, updateDistrictDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('admin'), RolesGuard)
+  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
   remove(@Param('id') id: string) {
     return this.districtService.remove(+id);
   }
