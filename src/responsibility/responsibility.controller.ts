@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
 import { ResponsibilityService } from './responsibility.service';
 import { CreateResponsibilityDto } from './dto/create-responsibility.dto';
 import { UpdateResponsibilityDto } from './dto/update-responsibility.dto';
@@ -14,6 +14,7 @@ export class ResponsibilityController {
   constructor(private readonly responsibilityService: ResponsibilityService) { }
 
   @Post()
+  @HttpCode(200)
   @Responsibilities(SUPER_ADMIN)
   @UseGuards(ResponsibilityGuard)
   create(@Body() createResponsibilityDto: CreateResponsibilityDto): Promise<Responsibility> {

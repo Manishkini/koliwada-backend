@@ -3,7 +3,7 @@ import { IsAlpha, IsNotEmpty, IsNumber, IsString, Matches } from "class-validato
 export class CreateRoleDto {
     @IsNotEmpty()
     @IsString()
-    @IsAlpha()
+    @Matches(/^[A-Za-z\s]+$/, { message: 'Please enter role name in english and only space is allowed' })
     name: string
 
     @IsNotEmpty()
@@ -13,11 +13,4 @@ export class CreateRoleDto {
     @IsNotEmpty()
     @IsString()
     slug: string
-
-    @IsNotEmpty()
-    @IsNumber()
-    rank: number
-
-    // @IsArray()
-    // permissions: object[]
 }

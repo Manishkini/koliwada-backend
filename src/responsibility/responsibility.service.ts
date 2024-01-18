@@ -21,7 +21,7 @@ export class ResponsibilityService {
 
   async findAll(): Promise<Responsibility[]> {
     try {
-      const responsibilities = await this.responsibilityModal.find({});
+      const responsibilities = await this.responsibilityModal.find({}).populate('role');
       return responsibilities;
     } catch (err) {
       throw new InternalServerErrorException(err)

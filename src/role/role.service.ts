@@ -12,7 +12,8 @@ export class RoleService {
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
     try {
-      const role = new this.roleModal(createRoleDto)
+      const lastRankObj = await this.roleModal.findOne({}).select('rank').sort({ 'rank': 'descending' })
+      const role = new this.roleModal({ ...createRoleDto, rank: lastRankObj.rank + 1 })
       await role.save();
       return role;
     } catch (err) {
