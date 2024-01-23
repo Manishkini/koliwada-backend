@@ -53,8 +53,7 @@ export class AdminController {
 
   @Post('invitation/filter')
   @HttpCode(200)
-  @Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
-  @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
+  @UseGuards(AuthGuard('admin'))
   getAllInvitations(@GetAdmin('') admin: AdminPayload, @Body() filterAdminDto: FilterAdminDto): Promise<Admin[]> {
     return this.adminService.getAllInvitations(admin, filterAdminDto);
   }

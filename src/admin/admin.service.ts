@@ -174,6 +174,9 @@ export class AdminService {
     await this.cacheManager.set(partialToken, JSON.stringify(admin));
   }
 
+  /*
+    getAllInvitations: Used to send all the admins data based on there role and filters they have used
+  */
   async getAllInvitations(admin: AdminPayload, filterAdminDto: FilterAdminDto): Promise<Admin[]> {
     try {
       const { role, villageID, accessTo, id } = admin
@@ -183,51 +186,31 @@ export class AdminService {
       const DEFAULT_LIMIT = 10;
       const DEFAULT_SKIP = 0;
 
+      // Checking whether user is normal user or admin user
+      // if normal user 
       if (role !== 'super_admin' && role !== 'admin') {
         pipeline.push({ $match: { village: ObjectId(villageID as unknown as string) } })
-        pipeline.push({
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-          },
-        });
-        pipeline.push({ $unwind: '$role' })
-        matchAndConditions.push({ 'role.slug': { $ne: 'super_admin' } })
-        matchAndConditions.push({ 'role.slug': { $ne: 'admin' } })
+        matchAndConditions.push({ 'responsibility.role.slug': { $ne: 'super_admin' } })
+        matchAndConditions.push({ 'responsibility.role.slug': { $ne: 'admin' } })
       } else if (role === 'admin') {
-        pipeline.push({
-          $lookup: {
-            from: 'roles',
-            localField: 'role',
-            foreignField: '_id',
-            as: 'role',
-          },
-        });
-        pipeline.push({ $unwind: '$role' })
-        matchAndConditions.push({ 'role.slug': { $ne: 'super_admin' } })
+        matchAndConditions.push({ 'responsibility.role.slug': { $ne: 'super_admin' } })
       }
 
       if (filterAdminDto && Object.keys(filterAdminDto).length) {
         if (filterAdminDto.responsibility) {
-          matchAndConditions.push(
-            role === 'admin'
-              ? { 'responsibility._id': ObjectId(filterAdminDto.responsibility as unknown as string) }
-              : { responsibility: ObjectId(filterAdminDto.responsibility as unknown as string) }
-          )
+          matchAndConditions.push({ 'responsibility._id': ObjectId(filterAdminDto.responsibility as unknown as string) })
         }
         if (filterAdminDto.state) {
-          matchAndConditions.push({ state: ObjectId(filterAdminDto.state as unknown as string) })
+          matchAndConditions.push({ 'state._id': ObjectId(filterAdminDto.state as unknown as string) })
         }
         if (filterAdminDto.district) {
-          matchAndConditions.push({ district: ObjectId(filterAdminDto.district as unknown as string) })
+          matchAndConditions.push({ 'district._id': ObjectId(filterAdminDto.district as unknown as string) })
         }
         if (filterAdminDto.tehsil) {
-          matchAndConditions.push({ tehsil: ObjectId(filterAdminDto.tehsil as unknown as string) })
+          matchAndConditions.push({ 'tehsil._id': ObjectId(filterAdminDto.tehsil as unknown as string) })
         }
         if (filterAdminDto.village) {
-          matchAndConditions.push({ village: ObjectId(filterAdminDto.village as unknown as string) })
+          matchAndConditions.push({ 'village._id': ObjectId(filterAdminDto.village as unknown as string) })
         }
         if (filterAdminDto.invitationStatus) {
           matchAndConditions.push({ invitationStatus: filterAdminDto.invitationStatus })
@@ -244,6 +227,11 @@ export class AdminService {
         }
       }
 
+      populateDocument.forEach((document) => {
+        pipeline.push({ $lookup: document })
+        pipeline.push({ $unwind: `$${document.as}` })
+      })
+
       matchAndConditions.push({ _id: { $ne: ObjectId(id as unknown as string) } })
       if (matchAndConditions?.length && matchOrConditions?.length) {
         pipeline.push({ $match: { $and: [...matchAndConditions, { $or: matchOrConditions }] } })
@@ -253,12 +241,31 @@ export class AdminService {
         pipeline.push({ $match: { $or: matchOrConditions } })
       }
 
-      populateDocument.forEach((document) => {
-        pipeline.push({ $lookup: document })
-        pipeline.push({ $unwind: `$${document.as}` })
+      pipeline.push({
+        $addFields: {
+          id: '$_id',
+          'responsibility.id': '$responsibility._id',
+          'responsibility.role.id': '$responsibility.role._id',
+          'state.id': '$state._id',
+          'district.id': '$district._id',
+          'tehsil.id': '$tehsil._id',
+          'village.id': '$village._id',
+        }
       })
 
-      pipeline.push({ $project: { password: 0, __v: 0 } })
+      pipeline.push({
+        $project: {
+          password: 0,
+          __v: 0,
+          _id: 0,
+          'responsibility._id': 0,
+          'state._id': 0,
+          'district._id': 0,
+          'tehsil._id': 0,
+          'village._id': 0,
+          'responsibility.role._id': 0
+        }
+      })
       pipeline.push({ $limit: filterAdminDto.limit || DEFAULT_LIMIT })
       pipeline.push({ $skip: filterAdminDto.skip || DEFAULT_SKIP })
 
