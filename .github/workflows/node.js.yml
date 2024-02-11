@@ -6,8 +6,6 @@ name: Koliwda CI/CD
 on:
   push:
     branches: ['main']
-  pull_request:
-    branches: ['main']
 
 jobs:
   build:
@@ -30,4 +28,3 @@ jobs:
           touch .env
           echo "${{ secrets.KOLIWADA }}" > .env
       - run: npm run build
-      - run: pm2 start ecosystem.config.js
