@@ -13,6 +13,8 @@ import { RouterModule } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { SeedModule } from './seed/seed.module';
 import { ResponsibilityModule } from './responsibility/responsibility.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -44,6 +46,10 @@ import { ResponsibilityModule } from './responsibility/responsibility.module';
     CacheModule.register({
       isGlobal: true,
       ttl: 60 * 60 * 1000
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/static'
     }),
     PermissionModule,
     RoleModule,
