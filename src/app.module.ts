@@ -15,6 +15,8 @@ import { SeedModule } from './seed/seed.module';
 import { ResponsibilityModule } from './responsibility/responsibility.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { GalleryModule } from './gallery/gallery.module';
+import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -61,6 +63,8 @@ import { join } from 'path';
     UserModule,
     SeedModule,
     ResponsibilityModule,
+    GalleryModule,
+    EventModule,
   ],
 })
 export class AppModule { }
