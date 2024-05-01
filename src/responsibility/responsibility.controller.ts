@@ -28,16 +28,19 @@ export class ResponsibilityController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.responsibilityService.findOne(+id);
+    return this.responsibilityService.findOne(id);
   }
 
   @Patch(':id')
+  @HttpCode(200)
+  @Responsibilities(SUPER_ADMIN)
+  @UseGuards(ResponsibilityGuard)
   update(@Param('id') id: string, @Body() updateResponsibilityDto: UpdateResponsibilityDto) {
-    return this.responsibilityService.update(+id, updateResponsibilityDto);
+    return this.responsibilityService.update(id, updateResponsibilityDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.responsibilityService.remove(+id);
+    return this.responsibilityService.remove(id);
   }
 }

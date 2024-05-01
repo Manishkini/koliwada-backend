@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateResponsibilityDto } from './dto/create-responsibility.dto';
 import { UpdateResponsibilityDto } from './dto/update-responsibility.dto';
 import { Responsibility } from 'src/schemas/responsibility.schema';
@@ -28,15 +28,29 @@ export class ResponsibilityService {
     }
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} responsibility`;
   }
 
-  update(id: number, updateResponsibilityDto: UpdateResponsibilityDto) {
-    return `This action updates a #${id} responsibility`;
+  async update(id: string, updateResponsibilityDto: UpdateResponsibilityDto): Promise<void> {
+    const { permissions } = updateResponsibilityDto;
+    const responsibility = await this.responsibilityModal.findById(id);
+
+    if(!responsibility) {
+      throw new NotFoundException('Responsibility not found');
+    }
+
+    await this.responsibilityModal.updateOne({
+      _id: responsibility._id
+    }, {
+      $set: {
+        permissions
+      }
+    })
+
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} responsibility`;
   }
 }
