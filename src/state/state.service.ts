@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateStateDto } from './dto/create-state.dto';
 import { UpdateStateDto } from './dto/update-state.dto';
 import { State } from 'src/schemas/state.schema';
@@ -11,27 +11,65 @@ export class StateService {
   constructor(@InjectModel(State.name) private stateModel: Model<State>) { }
 
   async create(createStateDto: CreateStateDto, admin: AdminDocument): Promise<State> {
-    const state = new this.stateModel(createStateDto)
-    state.createdBy = admin.id
-    state.updatedBy = admin.id
-    state.active = true
-    await state.save();
-    return state;
+    try {
+      const state = new this.stateModel(createStateDto)
+      state.createdBy = admin.id
+      state.updatedBy = admin.id
+      state.active = true
+      await state.save();
+      return state;
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  findAll() {
-    return this.stateModel.find({});
+  async findAll(): Promise<State[]> {
+    try {
+      return await this.stateModel.find({});
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} state`;
+  async findOne(id: string): Promise<State> {
+    try {
+      return await this.stateModel.findById(id);
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  update(id: number, updateStateDto: UpdateStateDto) {
-    return `This action updates a #${id} state`;
+  async update(id: string, admin: AdminDocument, updateStateDto: UpdateStateDto): Promise<void> {
+    try {
+      const { name, nameNative, slug } = updateStateDto;
+
+      const state = await this.stateModel.findById(id);
+
+      if(!state) {
+        throw new NotFoundException('State not found');
+      }
+
+      await this.stateModel.updateOne(
+        { _id: id },
+        {
+          $set: {
+            name,
+            nameNative,
+            slug,
+            updatedBy: admin.id
+          }
+        }
+      )
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} state`;
+  async remove(id: string): Promise<void> {
+    try {
+      await this.stateModel.deleteOne({ _id: id });
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }

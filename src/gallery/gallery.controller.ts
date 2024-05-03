@@ -11,6 +11,7 @@ import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { Gallery } from 'src/schemas/gallery.schema';
 import { Photo } from 'src/schemas/photos.schema';
+import { AdminPayload } from 'src/admin/admin-payload.interface';
 
 @Controller('gallery')
 @Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
@@ -25,16 +26,19 @@ export class GalleryController {
   }
 
   @Get()
-  findAll(): Promise<Gallery[]> {
-    return this.galleryService.findAll();
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
+  findAll(@GetAdmin() admin: AdminPayload): Promise<Gallery[]> {
+    return this.galleryService.findAll(admin);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Gallery> {
-    return this.galleryService.findOne(id);
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
+  findOne(@Param('id') id: string, @GetAdmin() admin: AdminPayload): Promise<Gallery> {
+    return this.galleryService.findOne(id, admin);
   }
 
   @Get(':id/photos')
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
   findAllPhotos(@Param('id') id: string): Promise<Photo[]> {
     return this.galleryService.findAllPhotos(id);
   }

@@ -8,15 +8,15 @@ import { Village } from 'src/schemas/village.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
-import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
+import { ADMIN, CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
 
 @Controller('village')
-@Responsibilities(SUPER_ADMIN)
 export class VillageController {
   constructor(private readonly villageService: VillageService) { }
 
   @Post()
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
   create(
     @Body() createVillageDto: CreateVillageDto,
     @GetAdmin() admin: AdminDocument
@@ -25,33 +25,37 @@ export class VillageController {
   }
 
   @Get()
+  @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
   findAll(): Promise<Village[]> {
     return this.villageService.findAll();
   }
 
   @Get('tehsil/:tehsilID')
-  @Responsibilities(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
   findByTehsilID(@Param('tehsilID') tehsilID: string) {
     return this.villageService.findByTehsilID(tehsilID);
   }
 
   @Get(':id')
-  @Responsibilities(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
   findOne(@Param('id') id: string) {
-    return this.villageService.findOne(+id);
+    return this.villageService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
-  update(@Param('id') id: string, @Body() updateVillageDto: UpdateVillageDto) {
-    return this.villageService.update(+id, updateVillageDto);
+  @Responsibilities(SUPER_ADMIN, ADMIN)
+  update(@Param('id') id: string, @GetAdmin() admin: AdminDocument, @Body() updateVillageDto: UpdateVillageDto) {
+    return this.villageService.update(id, admin, updateVillageDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN)
   remove(@Param('id') id: string) {
-    return this.villageService.remove(+id);
+    return this.villageService.remove(id);
   }
 }

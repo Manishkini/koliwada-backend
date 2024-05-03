@@ -14,6 +14,7 @@ import { Event } from 'src/schemas/event.schema';
 import { Village } from 'src/schemas/village.schema';
 import { v4 as uuidv4 } from 'uuid';
 import * as sharp from 'sharp';
+import { AdminPayload } from 'src/admin/admin-payload.interface';
 
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -92,9 +93,14 @@ export class GalleryService {
 
   }
 
-  async findAll(): Promise<Gallery[]> {
+  async findAll(admin: AdminPayload): Promise<Gallery[]> {
     try {
-      const galleries = await this.galleryModel.find({ active: true }).populate(['event', 'village']);
+      const query = { active: true }
+      if(admin.role !== 'super_admin' && admin.role !== 'admin') {
+        query['village'] = admin.villageID
+      }
+
+      const galleries = await this.galleryModel.find(query).populate(['event', 'village']);
       return galleries;
     } catch(error) {
       throw new InternalServerErrorException(error)
@@ -124,9 +130,13 @@ export class GalleryService {
     }
   }
 
-  async findOne(id: string): Promise<Gallery> {
+  async findOne(id: string, admin: AdminPayload): Promise<Gallery> {
     try {
-      const gallery = await this.galleryModel.findById(id).populate(['event', 'village']);
+      const query = { _id: id, active: true }
+      if(admin.role !== 'super_admin' && admin.role !== 'admin') {
+        query['village'] = admin.villageID
+      }
+      const gallery = await this.galleryModel.findOne(query).populate(['event', 'village']);
       return gallery;
     } catch(error) {
       throw new InternalServerErrorException(error)

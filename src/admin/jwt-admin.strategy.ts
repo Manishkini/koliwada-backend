@@ -39,7 +39,7 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'admin') {
         payload.responsibilityID = admin.responsibility.id;
         payload.role = admin.responsibility.role.slug;
         payload.rank = admin.responsibility.role.rank;
-        payload.villageID = admin.village.id;
+        payload.villageID = admin.village.id; 
 
         return payload;
     }

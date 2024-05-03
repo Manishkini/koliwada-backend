@@ -7,16 +7,16 @@ import { AuthGuard } from '@nestjs/passport';
 import { AdminDocument } from 'src/schemas/admin.schema';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
-import { CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
+import { ADMIN, CHAIRMAN, SUPER_ADMIN } from 'src/role/roles-list.enum';
 import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 
 @Controller('state')
-@Responsibilities(SUPER_ADMIN)
 export class StateController {
   constructor(private readonly stateService: StateService) { }
 
   @Post()
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
+  @Responsibilities(SUPER_ADMIN, ADMIN)
   create(
     @Body() createStateDto: CreateStateDto,
     @GetAdmin() admin: AdminDocument
@@ -25,28 +25,30 @@ export class StateController {
   }
 
   @Get()
-  @Responsibilities(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
-  findAll() {
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
+  findAll(): Promise<State[]> {
     return this.stateService.findAll();
   }
 
   @Get(':id')
-  @Responsibilities(CHAIRMAN)
   @UseGuards(AuthGuard(['admin', 'user']), ResponsibilityGuard)
-  findOne(@Param('id') id: string) {
-    return this.stateService.findOne(+id);
+  @Responsibilities(SUPER_ADMIN, ADMIN, CHAIRMAN)
+  findOne(@Param('id') id: string): Promise<State> {
+    return this.stateService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
-  update(@Param('id') id: string, @Body() updateStateDto: UpdateStateDto) {
-    return this.stateService.update(+id, updateStateDto);
+  @Responsibilities(SUPER_ADMIN, ADMIN)
+  update(@Param('id') id: string, @GetAdmin() admin: AdminDocument, @Body() updateStateDto: UpdateStateDto): Promise<void> {
+    return this.stateService.update(id, admin, updateStateDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('admin'), ResponsibilityGuard)
-  remove(@Param('id') id: string) {
-    return this.stateService.remove(+id);
+  @Responsibilities(SUPER_ADMIN, ADMIN)
+  remove(@Param('id') id: string): Promise<void> {
+    return this.stateService.remove(id);
   }
 }

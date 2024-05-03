@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDistrictDto } from './dto/create-district.dto';
 import { UpdateDistrictDto } from './dto/update-district.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,31 +11,73 @@ export class DistrictService {
   constructor(@InjectModel(District.name) private districtModel: Model<District>) { }
 
   async create(createDistrictDto: CreateDistrictDto, admin: AdminDocument): Promise<District> {
-    const district = new this.districtModel(createDistrictDto)
-    district.createdBy = admin.id
-    district.updatedBy = admin.id
-    district.active = true
-    await district.save();
-    return district;
+    try {
+      const district = new this.districtModel(createDistrictDto)
+      district.createdBy = admin.id
+      district.updatedBy = admin.id
+      district.active = true
+      await district.save();
+      return district;
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  findAll() {
-    return this.districtModel.find({});
+  async findAll(): Promise<District[]> {
+    try {
+      return this.districtModel.find({}).populate('state');
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   async findByStateID(stateID: string): Promise<District[]> {
-    return await this.districtModel.find({ state: stateID });
+    try {
+      return await this.districtModel.find({ state: stateID }).populate('state');
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} district`;
+  async findOne(id: string): Promise<District> {
+    try {
+      return await this.districtModel.findById(id).populate('state');
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  update(id: number, updateDistrictDto: UpdateDistrictDto) {
-    return `This action updates a #${id} district`;
+  async update(id: string, admin: AdminDocument, updateDistrictDto: UpdateDistrictDto): Promise<void> {
+    try {
+      const { name, nameNative, slug } = updateDistrictDto;
+
+      const state = await this.districtModel.findById(id);
+
+      if(!state) {
+        throw new NotFoundException('State not found');
+      }
+
+      await this.districtModel.updateOne(
+        { _id: id },
+        {
+          $set: {
+            name,
+            nameNative,
+            slug,
+            updatedBy: admin.id
+          }
+        }
+      )
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} district`;
+  async remove(id: string): Promise<void> {
+    try {
+      await this.districtModel.deleteOne({ _id: id });
+    } catch(error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }
