@@ -3,14 +3,14 @@ import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Responsibilities } from 'src/responsibility/responsibilities.decorator';
-import { SUPER_ADMIN } from 'src/role/roles-list.enum';
+import { CHAIRMAN, SUPER_ADMIN, VICE_PRESIDENT } from 'src/role/roles-list.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { ResponsibilityGuard } from 'src/responsibility/responsibility.guard';
 import { GetAdmin } from 'src/admin/get-admin.decorator';
 import { AdminDocument } from 'src/schemas/admin.schema';
 
 @Controller('event')
-@Responsibilities(SUPER_ADMIN)
+@Responsibilities(SUPER_ADMIN, CHAIRMAN, VICE_PRESIDENT)
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 

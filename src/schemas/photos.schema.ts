@@ -21,6 +21,12 @@ export class Photo {
     @Prop({ required: true })
     key: string;
 
+    @Prop({ required: true })
+    width: number;
+
+    @Prop({ required: true })
+    height: number;
+
     @Prop({ type: Boolean, default: true })
     active: boolean;
 }
